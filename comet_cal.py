@@ -22,7 +22,7 @@ obssetup["nchan"] = 1048576
 obssetup["sampling_time"] = 1
 obssetup["period_on"] = 1
 obssetup["period_off"] = 9
-obssetup["source_on"] = 20
+obssetup["source_on"] = 300
 obssetup["source_switch"] = 30
 
 obssetup["tcal_file"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
