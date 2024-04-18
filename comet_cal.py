@@ -26,20 +26,20 @@ obssetup["source_on"] = 300
 obssetup["source_switch"] = 30
 
 obssetup["tcal_file"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
-obssetup["fits_files"] = "Comet_UWB_user-defined-UWB2_*.fits"
+obssetup["fits_files"] = "Comet_UWB_user-defined-UWB2_000*.fits"
 
-
-# comet_name = "arp220"
-# base_input_path = "./comet_uwb_obs_data"
-# base_output_path = "./comet_outputs"
-# src_path = "/".join([base_input_path, comet_name])
-# out_path = "/".join([base_output_path, comet_name])
 
 comet_name = "12P"
-base_input_path = "/data31/N2023_9/Comet_UWB/20240417"
+base_input_path = "./comet_uwb_obs_data"
 base_output_path = "./comet_outputs"
-src_path = base_input_path
+src_path = "/".join([base_input_path, comet_name])
 out_path = "/".join([base_output_path, comet_name])
+
+# comet_name = "12P"
+# base_input_path = "/data31/N2023_9/Comet_UWB/20240417"
+# base_output_path = "./comet_outputs"
+# src_path = base_input_path
+# out_path = "/".join([base_output_path, comet_name])
 
 pol_averaged_path = "/".join([out_path, "pol_averaged"])
 
@@ -70,7 +70,7 @@ if not os.path.exists(prod_source_off_path + "/power_ave.npy"):
     pipeline.power_ave(power_source_off_path, prod_source_off_path)
 
 
-for freq_limit in [[1415, 1425], [1660, 1670]]:
+for freq_limit in [[1418, 1422], [1656, 1668]]:
     pipeline.comet_cal_power_data(obssetup, power_source_on_path, tacal_source_on_path, freqlimit=freq_limit, cycle=10, fig_path=fig_source_on_path)
     pipeline.comet_cal_power_data(obssetup, power_source_off_path, tacal_source_off_path, freqlimit=freq_limit, cycle=10, fig_path=fig_source_off_path)
 

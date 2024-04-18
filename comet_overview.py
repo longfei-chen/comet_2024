@@ -31,19 +31,35 @@ obssetup["tcal_data"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
 tcal_pol_1 = functions.get_tcal(obssetup["tcal_data"])
 
 
-
 base_input_path = "./comet_uwb_obs_data"
-base_output_path = "./comet_output"
+base_output_path = "./comet_outputs"
+
+
+# xmin, xmax = 1418, 1422
+# HI = np.load(f"{base_output_path}/12P/product/Ta_{xmin}_{xmax}_ave.npy")
+
+xmin, xmax = 1656, 1668
+OH_on = np.load(f"{base_output_path}/12P/product/Ta_{xmin}_{xmax}_ave.npy")
+OH_off = np.load(f"{base_output_path}/12P/product/Ta_{xmin}_{xmax}_ave.npy")
+OH = np.load(f"{base_output_path}/12P/product/Ta_{xmin}_{xmax}_ave.npy")
+
+freq_mask, freq_array = functions.get_freq_mask_range("UWB2", xmin=xmin, xmax=xmax)
+
+plt.plot(freq_array, OH)
+plt.xlabel("Freqency (MHz)")
+plt.ylabel("Ta (K)")
+plt.grid()
+plt.show()
+
+exit(0)
+
 
 target_name = "arp220"
-
-
 fits_files = glob.glob("/".join([base_input_path, target_name, "*.fits"]))
 
 
 hdu_info = functions.get_fits_info(fits_files[0])
 print(hdu_info)
-
 
 freq_mask, freq_array = functions.get_freq_mask_range("UWB-2", xmin=950, xmax=1750)
 

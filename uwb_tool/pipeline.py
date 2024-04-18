@@ -46,7 +46,7 @@ def polave_fits(obssetup, src_path, out_path, fig_path=None):
 
     out_file_fmt = "_".join(["power", "{}.npy"])
     
-    fits_files = glob.glob("/".join([src_path, obssetup["fits_files"]]))
+    fits_files = sorted(glob.glob("/".join([src_path, obssetup["fits_files"]])))
     for fi in fits_files[0:5]:
         functions.prt_info("processing file %s...", fi)
         
@@ -97,7 +97,7 @@ def power_ave(load_path, prod_path):
 
     sum_power = 0
     tot_timebin = 0
-    for fi in glob.glob("/".join([load_path, "power_*.npy"])):
+    for fi in sorted(glob.glob("/".join([load_path, "power_*.npy"]))):
         functions.prt_info("average power data for file %s...", fi)
 
         power = np.load(fi)
@@ -147,7 +147,7 @@ def ta_ave(obssetup, data_path, prod_path, freqlimit=None):
 
     sum_ta = 0
     tot_record = 0
-    for fi in glob.glob("/".join([data_path, f"Ta_{freqlimit[0]}_{freqlimit[1]}_*.npy"])):
+    for fi in sorted(glob.glob("/".join([data_path, f"Ta_{freqlimit[0]}_{freqlimit[1]}_*.npy"]))):
         functions.prt_info("average Ta data for file %s...", fi)
 
         ta = np.load(fi)
@@ -361,7 +361,7 @@ def comet_split_source_onoff(obssetup, load_path, out_path):
 
     idx = 0
     power = None
-    power_files = glob.glob("/".join([load_path, "power_*.npy"]))
+    power_files = sorted(glob.glob("/".join([load_path, "power_*.npy"])))
     the_last_file = False
     for fi_idx,fi in enumerate(power_files):
         if fi_idx+1 == len(power_files):
@@ -450,7 +450,7 @@ def comet_cal_power_data(obssetup, load_path, data_path, freqlimit=None, cycle=3
 
     idx = 0
     power = None
-    power_files = glob.glob("/".join([load_path, "power_*.npy"]))
+    power_files = sorted(glob.glob("/".join([load_path, "power_*.npy"])))
     for fi in power_files:
         functions.prt_info("reading power file %s...", fi)
 
@@ -538,9 +538,9 @@ def comet_ON_minus_OFF(obssetup, prod_path, freqlimit=None):
         functions.prt_info("freqlimit is out of the receiver frequency range.")
         exit(0)
 
-    sourceON_files = glob.glob("/".join([prod_path+"/sourceON", f"Ta_{freqlimit[0]}_{freqlimit[1]}_ave.py"]))
-    sourceOFF_files = glob.glob("/".join([prod_path+"/sourceOFF", f"Ta_{freqlimit[0]}_{freqlimit[1]}_ave.py"]))
-    
+    sourceON_files = sorted(glob.glob("/".join([prod_path+"/sourceON", f"Ta_{freqlimit[0]}_{freqlimit[1]}_ave.npy"])))
+    sourceOFF_files = sorted(glob.glob("/".join([prod_path+"/sourceOFF", f"Ta_{freqlimit[0]}_{freqlimit[1]}_ave.npy"])))
+
     file_num = min(len(sourceON_files), len(sourceOFF_files))
     for on_file,off_file in zip(sourceON_files[0:file_num], sourceOFF_files[0:file_num]):
         on_file_name = os.path.basename(on_file)
@@ -556,6 +556,8 @@ def comet_ON_minus_OFF(obssetup, prod_path, freqlimit=None):
         onoff = on_data - off_data
         
         np.save(prod_path + "/" + on_file_name, onoff)
+        print("aa")
+        functions.prt_info("Baseline substraction for %s...", on_file_name)
 
 
 def comet_velo_ephem(ephem_file, tstr2mjd=True):
