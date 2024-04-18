@@ -1,0 +1,7 @@
+__pycache__/
+comet_ephem/
+comet_outputs/
+comet_uwb_obs_data/
+*.pdf
+*.npy
+*.fits
