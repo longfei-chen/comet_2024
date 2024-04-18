@@ -11,10 +11,10 @@ from scipy.interpolate import interp1d
 import pandas as pd
 
 UWB_receiver = {
-"UWB-1": {"total_range":[0,1100],    "band_width":1100, "recommended_range":[500,950]},
-"UWB-2": {"total_range":[800,1900],  "band_width":1100, "recommended_range":[950,1750]},
-"UWB-3": {"total_range":[1600,2700], "band_width":1100, "recommended_range":[1750,2550]},
-"UWB-4": {"total_range":[2400,3500], "band_width":1100, "recommended_range":[2550,3300]}
+"UWB1": {"total_range":[0,1100],    "band_width":1100, "recommended_range":[500,950]},
+"UWB2": {"total_range":[800,1900],  "band_width":1100, "recommended_range":[950,1750]},
+"UWB3": {"total_range":[1600,2700], "band_width":1100, "recommended_range":[1750,2550]},
+"UWB4": {"total_range":[2400,3500], "band_width":1100, "recommended_range":[2550,3300]}
 }
 
 

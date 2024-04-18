@@ -15,7 +15,7 @@ from uwb_tool import functions
 obssetup = {}
 obssetup["ra"] = None
 obssetup["dec"] = None
-obssetup["receiver"] = "UWB-2"
+obssetup["receiver"] = "UWB2"
 obssetup["bandw"] = functions.UWB_receiver[obssetup["receiver"]]["band_width"]
 obssetup["nchan"] = 1048576
 
@@ -26,14 +26,19 @@ obssetup["source_on"] = 20
 obssetup["source_switch"] = 30
 
 obssetup["tcal_file"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
-obssetup["fits_files"] = "*.fits"
+obssetup["fits_files"] = "Comet_UWB_user-defined-UWB2_*.fits"
 
 
-comet_name = "arp220"
-base_input_path = "./comet_uwb_obs_data"
+# comet_name = "arp220"
+# base_input_path = "./comet_uwb_obs_data"
+# base_output_path = "./comet_outputs"
+# src_path = "/".join([base_input_path, comet_name])
+# out_path = "/".join([base_output_path, comet_name])
+
+comet_name = "12P"
+base_input_path = "/data31/N2023_9/Comet_UWB/20240417"
 base_output_path = "./comet_outputs"
-
-src_path = "/".join([base_input_path, comet_name])
+src_path = base_input_path
 out_path = "/".join([base_output_path, comet_name])
 
 pol_averaged_path = "/".join([out_path, "pol_averaged"])
@@ -56,7 +61,7 @@ prod_source_off_path = prod_path + "/" + "sourceOFF"
 
 
 if not os.path.exists(prod_source_off_path + "/power_ave.npy"):
-    # pipeline.polave_fits(obssetup, src_path, pol_averaged_path, fig_path=fig_path)
+    pipeline.polave_fits(obssetup, src_path, pol_averaged_path, fig_path=fig_path)
 
     load_path = pol_averaged_path
     pipeline.comet_split_source_onoff(obssetup, load_path, source_onoff_split_path)
