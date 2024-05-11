@@ -5,3 +5,4 @@ comet_uwb_obs_data/
 *.pdf
 *.npy
 *.fits
+horizons_results_*.txt

@@ -16,7 +16,7 @@ import scipy.signal as signal
 
 # from specline import constants, molspec
 from uwb_tool import functions, plotting
-# from specline.ugdopplerfast import ugdopplerfast
+from uwb_tool.ugdopplerfast import ugdopplerfast
 
 
 
@@ -233,7 +233,7 @@ def rest_corr(vlsr, restfreq):
     return: float in MHz
         corrected doppler of the molecular line.
     '''
-    doppler = vlsr * restfreq / constants.c
+    doppler = vlsr * restfreq / 2.99792458e5
 
     return doppler
 
@@ -281,7 +281,7 @@ def freq_to_velo(freq_arr, restfreq):
     return: array.
     frequency array to velocity array.
     '''
-    velo = constants.c * (restfreq - freq_arr) / restfreq
+    velo = 2.99792458e5 * (restfreq - freq_arr) / restfreq
 
     return velo
 
@@ -556,7 +556,6 @@ def comet_ON_minus_OFF(obssetup, prod_path, freqlimit=None):
         onoff = on_data - off_data
         
         np.save(prod_path + "/" + on_file_name, onoff)
-        print("aa")
         functions.prt_info("Baseline substraction for %s...", on_file_name)
 
 

@@ -21,25 +21,28 @@ obssetup["nchan"] = 1048576
 
 obssetup["sampling_time"] = 1
 obssetup["period_on"] = 1
-obssetup["period_off"] = 9
+obssetup["period_off"] = 31
 obssetup["source_on"] = 300
-obssetup["source_switch"] = 30
+obssetup["source_switch"] = 300
 
 obssetup["tcal_file"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
-obssetup["fits_files"] = "Comet_UWB_user-defined-UWB2_000*.fits"
-
+obssetup["fits_files"] = "arp220_onoff-UWB2_000*.fits"
 
 comet_name = "12P"
-base_input_path = "./comet_uwb_obs_data"
-base_output_path = "./comet_outputs"
-src_path = "/".join([base_input_path, comet_name])
-out_path = "/".join([base_output_path, comet_name])
+obsdate = "20240510"
 
-# comet_name = "12P"
-# base_input_path = "/data31/N2023_9/Comet_UWB/20240417"
+#### local setup
+# comet_name = "arp220"
+# base_input_path = "./comet_uwb_obs_data"
 # base_output_path = "./comet_outputs"
-# src_path = base_input_path
-# out_path = "/".join([base_output_path, comet_name])
+# src_path = "/".join([base_input_path, comet_name])
+# out_path = "/".join([base_output_path, comet_name, obsdate])
+
+#### FAST cluster setup
+base_input_path = f"/data31/N2023_9/Comet_UWB/{obsdate}"
+base_output_path = "./comet_outputs"
+src_path = base_input_path
+out_path = "/".join([base_output_path, comet_name, obsdate])
 
 pol_averaged_path = "/".join([out_path, "pol_averaged"])
 
