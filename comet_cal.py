@@ -21,7 +21,8 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
     obssetup["source_on"] = 300
     obssetup["source_switch"] = 300
 
-    obssetup["tcal_file"] = "./tcal/20220617-high-cal/0.95-1.75GHz-Th.xlsx"
+    cal_file = functions.UWB_receiver[receiver]["cal_file"]
+    obssetup["tcal_file"] = f"./tcal/20220617-high-cal/{cal_file}"
     obssetup["fits_files"] = f"arp220_onoff-{receiver}_*.fits"
 
 
