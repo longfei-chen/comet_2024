@@ -47,7 +47,7 @@ def polave_fits(obssetup, src_path, out_path, fig_path=None):
     out_file_fmt = "_".join(["power", "{}.npy"])
     
     fits_files = sorted(glob.glob("/".join([src_path, obssetup["fits_files"]])))
-    for fi in fits_files[0:5]:
+    for fi in fits_files:
         functions.prt_info("processing file %s...", fi)
         
         file_idx = int(fi[-9:-5])

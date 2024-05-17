@@ -17,19 +17,20 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
 
     obssetup["sampling_time"] = 1
     obssetup["period_on"] = 1
-    obssetup["period_off"] = 31
+    obssetup["period_off"] = 9
     obssetup["source_on"] = 300
-    obssetup["source_switch"] = 300
+    obssetup["source_switch"] = 30
 
     cal_file = functions.UWB_receiver[receiver]["cal_file"]
     obssetup["tcal_file"] = f"./tcal/20220617-high-cal/{cal_file}"
-    obssetup["fits_files"] = f"arp220_onoff-{receiver}_*.fits"
+    obssetup["fits_files"] = f"Comet_UWB_user-defined-{receiver}_*.fits"
 
 
     #### FAST cluster setup
     # base_input_path = f"/data31/N2023_9/Comet_UWB/{obsdate}"
-    base_input_path = f"/media/longfei/N2023_9/Comet_UWB/{obsdate}"
-    base_output_path = "./comet_outputs"
+    my_disk = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d"
+    base_input_path = f"{my_disk}/N2023_9/Comet_UWB/{obsdate}"
+    base_output_path = f"{my_disk}/N2023_9_outputs"
     src_path = base_input_path
     out_path = "/".join([base_output_path, comet_name, obsdate])
 
@@ -75,7 +76,7 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
 
 if __name__ == "__main__":
     comet_name = "12P"
-    obsdate = ["20240417", "20240424", "20240427", "20240429", "20240510", "20240511", "20240513"]
+    obsdate = ["20240417", "20240424", "20240429", "20240503", "20240510", "20240511", "20240513"]
     receiver = "UWB2"
     freq_limit_list = [[1418, 1422], [1655, 1670]]
 
