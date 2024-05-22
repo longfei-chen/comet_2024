@@ -63,8 +63,8 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
         pipeline.power_ave(power_source_off_path, prod_source_off_path)
 
 
-    pipeline.comet_cal_power_data(obssetup, power_source_on_path, tacal_source_on_path, freqlimit=freq_limit, cycle=10, fig_path=fig_source_on_path)
-    pipeline.comet_cal_power_data(obssetup, power_source_off_path, tacal_source_off_path, freqlimit=freq_limit, cycle=10, fig_path=fig_source_off_path)
+    pipeline.comet_cal_power_data(obssetup, power_source_on_path, tacal_source_on_path, freqlimit=freq_limit, cycle=6, fig_path=fig_source_on_path)
+    pipeline.comet_cal_power_data(obssetup, power_source_off_path, tacal_source_off_path, freqlimit=freq_limit, cycle=6, fig_path=fig_source_off_path)
 
     pipeline.ta_ave(obssetup, tacal_source_on_path, prod_source_on_path, freqlimit=freq_limit)
     pipeline.ta_ave(obssetup, tacal_source_off_path, prod_source_off_path, freqlimit=freq_limit)
