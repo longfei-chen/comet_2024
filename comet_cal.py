@@ -32,7 +32,7 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
     base_input_path = f"{my_disk}/N2023_9/Comet_UWB/{obsdate}"
     base_output_path = f"{my_disk}/N2023_9_outputs"
     src_path = base_input_path
-    out_path = "/".join([base_output_path, comet_name, obsdate])
+    out_path = "/".join([base_output_path, comet_name, obsdate, receiver])
 
     pol_averaged_path = "/".join([out_path, "pol_averaged"])
 
@@ -77,9 +77,25 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
 if __name__ == "__main__":
     comet_name = "12P"
     obsdate = ["20240417", "20240424", "20240429", "20240503", "20240510", "20240511", "20240513"]
-    receiver = "UWB2"
-    freq_limit_list = [[1418, 1422], [1655, 1670]]
-
+    
+    receiver = "UWB1"
+    freq_limit_list = [[500,650], [650,800], [800,950]]
     for obs_date,freq_limit in product(obsdate, freq_limit_list):
         cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
+    
+    receiver = "UWB2"
+    freq_limit_list = [[950,1150], [1150,1350], [1350,1550], [1550,1750]]
+    for obs_date,freq_limit in product(obsdate, freq_limit_list):
+        cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
+    
+    receiver = "UWB3"
+    freq_limit_list = [[1750,1950], [1950,2150], [2150,2350], [2350,2550]]
+    for obs_date,freq_limit in product(obsdate, freq_limit_list):
+        cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
+    
+    receiver = "UWB4"
+    freq_limit_list = [[2550,2700], [2700,2850], [2850,3000], [3000,3150], [3150,3300]]
+    for obs_date,freq_limit in product(obsdate, freq_limit_list):
+        cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
+    
     
