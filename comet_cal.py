@@ -94,7 +94,7 @@ if __name__ == "__main__":
         cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
     
     receiver = "UWB4"
-    freq_limit_list = [[2550,2700], [2700,2850], [2850,3000], [3000,3150], [3150,3300]]
+    freq_limit_list = [[2550,2700], [2700,2850], [2850,3000], [3000,3150], [3150,3300], [3300,3450]]
     for obs_date,freq_limit in product(obsdate, freq_limit_list):
         cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
     
