@@ -17,20 +17,21 @@ from uwb_tool import functions
 # based_data_path = "./"
 based_data_path = "F:/comet_2024/"
 comet_name = "12P"
-receiver = "UWB2"
-fixed_freq_limit = [1550, 1750]
+receiver = "UWB4"
+fixed_freq_limit = [3300, 3450]
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]
 
-OH_1665 = 1665.4018 * u.MHz
-OH_1667 = 1667.3590 * u.MHz
+CH_3264 = 3263.794 * u.MHz
+CH_3335 = 3335.481 * u.MHz
+CH_3349 = 3349.193 * u.MHz
 
-OH_line = OH_1667
+CH_line = CH_3335
 width = 3 # MHz
-freq_limit = [np.floor(OH_line.value - width), np.floor(OH_line.value + width)]
+freq_limit = [np.floor(CH_line.value - width), np.floor(CH_line.value + width)]
 
-select_date = obs_date_list[4]
+select_date = obs_date_list[0]
 
 
 # prepare for the frequency axis
@@ -40,7 +41,7 @@ freq_mask = (freq_array >= freq_limit[0]) & (freq_array <= freq_limit[1])
 new_spec_array = copy.deepcopy(freq_array[freq_mask]) * u.MHz
 new_spec_coord = SpectralCoord(new_spec_array,
                                doppler_convention="radio",
-                               doppler_rest=OH_line)
+                               doppler_rest=CH_line)
 
 # read the doppler corrected ta data files
 ta_on_files = f"{based_data_path}" + "comet_outputs/{}/{}/{}/product/sourceON/Ta_{}_{}_doppler.npy"
@@ -81,7 +82,7 @@ if select_date == "20240510":
     sp_smoothed = sp_smoothed - sw
 
 # Fitting
-init_condition = models.Gaussian1D(-0.2, OH_line, 0.03*u.MHz)
+init_condition = models.Gaussian1D(-0.2, CH_line, 0.03*u.MHz)
 fit_func = fit_lines(sp_smoothed, init_condition)
 sp_fitted = fit_func(sp.frequency)
 

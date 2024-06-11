@@ -10,31 +10,30 @@ from uwb_tool import pipeline
 from uwb_tool import functions
 
 
+# based_data_path = "./"
+based_data_path = "F:/comet_2024/"
 comet_name = "12P"
+# receiver = "UWB2"
+# fixed_freq_limit = [1550, 1750]
+receiver = "UWB4"
+fixed_freq_limit = [3300, 3450]
+
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]
-receiver = "UWB2"
-fixed_freq_limit = [1655, 1670]
-freq_limit = [1664, 1668]
-OH_1667 = 1667.3590 * u.MHz
 
 
 # prepare for the frequency axis
 _, freq_array = functions.get_freq_mask_range(receiver, fixed_freq_limit[0], fixed_freq_limit[1])
-freq_mask = (freq_array >= freq_limit[0]) & (freq_array <= freq_limit[1])
 
 c = 3e5 # light velocity
 source_on_time = 5 # minutes
-obs_freq_array = freq_array[freq_mask]
-new_spec_array = copy.deepcopy(freq_array[freq_mask]) * u.MHz
-new_spec_coord = SpectralCoord(new_spec_array,
-                               doppler_convention="radio",
-                               doppler_rest=OH_1667)
+obs_freq_array = freq_array
+new_spec_array = copy.deepcopy(freq_array) * u.MHz
 
 
 # read the ta calibrated ta data files
-ta_on_files = "./comet_outputs/{}/{}/tacal/sourceON/Ta_{}_{}_*.npy"
-ta_off_files = "./comet_outputs/{}/{}/tacal/sourceOFF/Ta_{}_{}_*.npy"
+ta_on_files = f"{based_data_path}" + "comet_outputs/{}/{}/{}/tacal/sourceON/Ta_{}_{}_*.npy"
+ta_off_files = f"{based_data_path}" + "comet_outputs/{}/{}/{}/tacal/sourceOFF/Ta_{}_{}_*.npy"
 
 ta_on, ta_off = {}, {}
 for obs_date in obs_date_list:
@@ -47,17 +46,17 @@ for obs_date in obs_date_list:
 
 
 for obs_date in obs_date_list:
-    for ta_on_file in sorted(glob.glob(ta_on_files.format(comet_name, obs_date, fixed_freq_limit[0], fixed_freq_limit[1]))):
+    for ta_on_file in sorted(glob.glob(ta_on_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))):
         temp_ta = np.load(ta_on_file)
-        temp_ta = temp_ta[freq_mask]
+        temp_ta = temp_ta
         if ta_on[obs_date] is None:
             ta_on[obs_date] = temp_ta
         else:
             ta_on[obs_date] = np.vstack((ta_on[obs_date], temp_ta))
     
-    for ta_off_file in sorted(glob.glob(ta_off_files.format(comet_name, obs_date, fixed_freq_limit[0], fixed_freq_limit[1]))):
+    for ta_off_file in sorted(glob.glob(ta_off_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))):
         temp_ta = np.load(ta_off_file)
-        temp_ta = temp_ta[freq_mask]
+        temp_ta = temp_ta
         if ta_off[obs_date] is None:
             ta_off[obs_date] = temp_ta
         else:
@@ -136,9 +135,11 @@ for obs_date in obs_date_list:
 
 # save the data
 for obs_date in obs_date_list:
-    out_path = f"./comet_outputs/{comet_name}/{obs_date}/product"
+    functions.prt_info("Writing doppler corrected data on %s", obs_date)
+    
+    out_path = f"{based_data_path}/comet_outputs/{comet_name}/{obs_date}/{receiver}/product"
     ta_doppler_file = f"Ta_{fixed_freq_limit[0]}_{fixed_freq_limit[1]}_doppler.npy"
     
-    # np.save(f"{out_path}/sourceON/{ta_doppler_file}", ta_on[obs_date])
-    # np.save(f"{out_path}/sourceOFF/{ta_doppler_file}", ta_off[obs_date])
+    np.save(f"{out_path}/sourceON/{ta_doppler_file}", ta_on[obs_date])
+    np.save(f"{out_path}/sourceOFF/{ta_doppler_file}", ta_off[obs_date])
     np.save(f"{out_path}/{ta_doppler_file}", ta_onoff[obs_date])
