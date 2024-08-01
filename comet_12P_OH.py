@@ -26,11 +26,11 @@ obs_date_list = ["20240417", "20240424",
 OH_1665 = 1665.4018 * u.MHz
 OH_1667 = 1667.3590 * u.MHz
 
-OH_line = OH_1667
+OH_line = OH_1665
 width = 3 # MHz
 freq_limit = [np.floor(OH_line.value - width), np.floor(OH_line.value + width)]
 
-select_date = obs_date_list[4]
+select_date = obs_date_list[2]
 
 
 # prepare for the frequency axis
@@ -53,7 +53,9 @@ for obs_date in obs_date_list:
     ta_off[obs_date] = np.load(ta_off_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
     ta_onoff[obs_date] = np.load(ta_onoff_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
 
-ta = ta_onoff[select_date]
+ta = ta_onoff[select_date][freq_mask]
+print(new_spec_array)
+
 
 # if select_date in ["20240511", "20240513"]:
 #     ta = (ta_onoff["20240510"] + ta_onoff["20240511"] + ta_onoff["20240513"])/3

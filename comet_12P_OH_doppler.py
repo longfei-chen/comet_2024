@@ -13,10 +13,10 @@ from uwb_tool import functions
 # based_data_path = "./"
 based_data_path = "F:/comet_2024/"
 comet_name = "12P"
-# receiver = "UWB2"
-# fixed_freq_limit = [1550, 1750]
-receiver = "UWB4"
-fixed_freq_limit = [3300, 3450]
+receiver = "UWB2"
+fixed_freq_limit = [1550, 1750]
+# receiver = "UWB4"
+# fixed_freq_limit = [3300, 3450]
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]
@@ -48,7 +48,7 @@ for obs_date in obs_date_list:
 for obs_date in obs_date_list:
     for ta_on_file in sorted(glob.glob(ta_on_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))):
         temp_ta = np.load(ta_on_file)
-        temp_ta = temp_ta
+        # temp_ta = temp_ta
         if ta_on[obs_date] is None:
             ta_on[obs_date] = temp_ta
         else:
@@ -56,7 +56,7 @@ for obs_date in obs_date_list:
     
     for ta_off_file in sorted(glob.glob(ta_off_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))):
         temp_ta = np.load(ta_off_file)
-        temp_ta = temp_ta
+        # temp_ta = temp_ta
         if ta_off[obs_date] is None:
             ta_off[obs_date] = temp_ta
         else:
