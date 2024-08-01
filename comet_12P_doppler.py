@@ -13,10 +13,12 @@ from uwb_tool import functions
 # based_data_path = "./"
 based_data_path = "F:/comet_2024/"
 comet_name = "12P"
-receiver = "UWB2"
-fixed_freq_limit = [1550, 1750]
-# receiver = "UWB4"
-# fixed_freq_limit = [3300, 3450]
+# receiver = "UWB2"
+# fixed_freq_limit = [1550, 1750]
+
+receiver = "UWB4"
+# fixed_freq_limit = [3150, 3300]
+fixed_freq_limit = [3300, 3450]
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]

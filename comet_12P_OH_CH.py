@@ -1,5 +1,5 @@
+import sys
 import copy
-# import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
@@ -13,25 +13,48 @@ from specutils.fitting import fit_lines
 from uwb_tool import pipeline
 from uwb_tool import functions
 
+if len(sys.argv) != 3:
+    print(f"Usage: python {sys.argv[0]} OH1665 20240417")
+    exit()
 
-# based_data_path = "./"
-based_data_path = "F:/comet_2024/"
-comet_name = "12P"
-receiver = "UWB2"
-fixed_freq_limit = [1550, 1750]
+line_dict = {
+"OH1665": 1665.4018 * u.MHz, "OH1667": 1667.3590 * u.MHz,
+"CH3264": 3263.794 * u.MHz, "CH3335": 3335.481 * u.MHz, "CH3349": 3349.193 * u.MHz,
+}
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]
 
-OH_1665 = 1665.4018 * u.MHz
-OH_1667 = 1667.3590 * u.MHz
 
-OH_line = OH_1665
-width = 3 # MHz
-freq_limit = [np.floor(OH_line.value - width), np.floor(OH_line.value + width)]
+mol_line = sys.argv[1]
+if mol_line not in line_dict:
+    print(f"Available lines: {line_dict.keys()}")
+    exit()
 
-select_date = obs_date_list[2]
+mol_line = line_dict[mol_line]
+width = 1 # MHz
+freq_limit = [np.floor(mol_line.value - width), np.floor(mol_line.value + width)]
 
+select_date = str(sys.argv[2])
+if select_date not in obs_date_list:
+    print(f"Available date: {obs_date_list}")
+    exit()
+
+
+if mol_line.value < 1668:
+    receiver = "UWB2"
+    fixed_freq_limit = [1550, 1750]
+elif mol_line.value < 3300:
+    receiver = "UWB4"
+    fixed_freq_limit = [3150, 3300]
+else:
+    receiver = "UWB4"
+    fixed_freq_limit = [3300, 3450]
+
+
+# based_data_path = "./"
+based_data_path = "F:/comet_2024/"
+comet_name = "12P"
 
 # prepare for the frequency axis
 _, freq_array = functions.get_freq_mask_range(receiver, fixed_freq_limit[0], fixed_freq_limit[1])
@@ -40,7 +63,7 @@ freq_mask = (freq_array >= freq_limit[0]) & (freq_array <= freq_limit[1])
 new_spec_array = copy.deepcopy(freq_array[freq_mask]) * u.MHz
 new_spec_coord = SpectralCoord(new_spec_array,
                                doppler_convention="radio",
-                               doppler_rest=OH_line)
+                               doppler_rest=mol_line)
 
 # read the doppler corrected ta data files
 ta_on_files = f"{based_data_path}" + "comet_outputs/{}/{}/{}/product/sourceON/Ta_{}_{}_doppler.npy"
@@ -53,8 +76,8 @@ for obs_date in obs_date_list:
     ta_off[obs_date] = np.load(ta_off_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
     ta_onoff[obs_date] = np.load(ta_onoff_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
 
+
 ta = ta_onoff[select_date][freq_mask]
-print(new_spec_array)
 
 
 # if select_date in ["20240511", "20240513"]:
@@ -83,7 +106,7 @@ if select_date == "20240510":
     sp_smoothed = sp_smoothed - sw
 
 # Fitting
-init_condition = models.Gaussian1D(-0.2, OH_line, 0.03*u.MHz)
+init_condition = models.Gaussian1D(-0.2, mol_line, 0.03*u.MHz)
 fit_func = fit_lines(sp_smoothed, init_condition)
 sp_fitted = fit_func(sp.frequency)
 
@@ -97,13 +120,14 @@ rms = functions.get_rms(sp_smoothed.flux)
 peak_ta_idx = np.argmax(np.abs(sp_fitted))
 peak_ta = sp_fitted[peak_ta_idx]
 
-# print line profile properties
-print(f"rms\t\t{rms.to(u.mK):.2f}")
-print(f"peak Ta\t\t{peak_ta.to(u.mK):.2f}")
+
 # print(f"SNR: {snr_derived(sp_smoothed, SpectralRegion(1.664*u.GHz, 1.668*u.GHz))}")
-print(f"SNR\t\t{np.abs(peak_ta/rms):.2f}")
-print(f"FWHM\t\t{gaussian_fwhm(velo_sp):.2f}")
-print(f"velocity\t{fit_sp.velocity[peak_ta_idx]:.2f}")
+print(f"{'rms (mK)':16s}{'peak Ta (mK)':16s}{'SNR':16s}{'FWHM (km/s)':16s}{'center velocity (km/s)'}")
+print(f"{rms.to(u.mK).value:<16.2f}"
+      f"{peak_ta.to(u.mK).value:<16.2f}"
+      f"{np.abs(peak_ta/rms):<16.2f}"
+      f"{gaussian_fwhm(velo_sp).value:<16.2f}"
+      f"{fit_sp.velocity[peak_ta_idx].value:<16.2f}")
 
 
 # plot with respect to frequency
@@ -122,7 +146,7 @@ plt.xlim([freq_min, freq_max])
 plt.xlabel("Frequency (GHz)", fontsize=16)
 plt.ylabel("Ta (K)", fontsize=16)
 plt.grid()
-plt.title(select_date, fontsize=20)
+plt.title(f"{select_date} @ {mol_line}", fontsize=20)
 plt.legend()
 plt.show()
 
@@ -141,6 +165,6 @@ plt.xlim([v_min, v_max])
 plt.xlabel("Velocity (km/s)", fontsize=16)
 plt.ylabel("Ta (K)", fontsize=16)
 plt.grid()
-plt.title(select_date, fontsize=20)
+plt.title(f"{select_date} @ {mol_line}", fontsize=20)
 plt.legend()
 plt.show()
