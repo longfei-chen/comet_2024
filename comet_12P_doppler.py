@@ -1,24 +1,26 @@
+import sys
 import copy
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.coordinates import SpectralCoord
 from specutils import Spectrum1D
 from specutils.manipulation import FluxConservingResampler
+
 from uwb_tool import pipeline
 from uwb_tool import functions
+
+if len(sys.argv) != 4:
+    print(f"Usage: python {sys.argv[0]} UWB3 1750 1950")
+    exit()
+
+receiver = sys.argv[1]
+fixed_freq_limit = [int(sys.argv[2]), int(sys.argv[3])]
 
 
 # based_data_path = "./"
 based_data_path = "F:/comet_2024/"
 comet_name = "12P"
-# receiver = "UWB2"
-# fixed_freq_limit = [1550, 1750]
-
-receiver = "UWB4"
-# fixed_freq_limit = [3150, 3300]
-fixed_freq_limit = [3300, 3450]
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]

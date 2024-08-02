@@ -10,28 +10,37 @@ from specutils.analysis import centroid, gaussian_fwhm, snr_derived
 from specutils.manipulation import box_smooth
 from specutils.fitting.continuum import fit_continuum
 from specutils.fitting import fit_lines
+
 from uwb_tool import pipeline
 from uwb_tool import functions
+import utils
 
 if len(sys.argv) != 3:
     print(f"Usage: python {sys.argv[0]} OH1665 20240417")
     exit()
 
 line_dict = {
-"OH1665": 1665.4018 * u.MHz, "OH1667": 1667.3590 * u.MHz,
-"CH3264": 3263.794 * u.MHz, "CH3335": 3335.481 * u.MHz, "CH3349": 3349.193 * u.MHz,
+"CH3OCHO_1": 1610.2493*u.MHz, "CH3OCHO_2": 1610.9063*u.MHz, 
+"18OH_1": 1637.5642*u.MHz, "18OH_2": 1639.5032*u.MHz, "18OH_3": 1692.7952*u.MHz, 
+"OH1665": 1665.4018*u.MHz, "OH1667": 1667.3590*u.MHz,
+"13CH3OH_1": 794.7061*u.MHz, "13CH3OH_2": 2384.0513*u.MHz, 
+"HC5N_1":2662.6641*u.MHz, "HC5N_2":	2662.8795*u.MHz, "HC9N": 2905.1827*u.MHz,
+"CH3264": 3263.794*u.MHz, "CH3335": 3335.481*u.MHz, "CH3349": 3349.193*u.MHz,
+"CH3CHOHCH2OH": 3349.7184*u.MHz, 
+"c-C3H_1": 3447.7142*u.MHz, "c-C3H_2": 3447.8425*u.MHz, "c-C3H_3": 3447.5665*u.MHz, "c-C3H_4": 3447.6246*u.MHz, 
+"H2SO4": 3350.2291*u.MHz,
 }
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]
 
 
-mol_line = sys.argv[1]
-if mol_line not in line_dict:
+mol_str = sys.argv[1]
+if mol_str not in line_dict:
     print(f"Available lines: {line_dict.keys()}")
     exit()
 
-mol_line = line_dict[mol_line]
+mol_line = line_dict[mol_str]
 width = 1 # MHz
 freq_limit = [np.floor(mol_line.value - width), np.floor(mol_line.value + width)]
 
@@ -41,15 +50,7 @@ if select_date not in obs_date_list:
     exit()
 
 
-if mol_line.value < 1668:
-    receiver = "UWB2"
-    fixed_freq_limit = [1550, 1750]
-elif mol_line.value < 3300:
-    receiver = "UWB4"
-    fixed_freq_limit = [3150, 3300]
-else:
-    receiver = "UWB4"
-    fixed_freq_limit = [3300, 3450]
+receiver, fixed_freq_limit = utils.get_band_range(mol_line.value)
 
 
 # based_data_path = "./"
@@ -146,7 +147,7 @@ plt.xlim([freq_min, freq_max])
 plt.xlabel("Frequency (GHz)", fontsize=16)
 plt.ylabel("Ta (K)", fontsize=16)
 plt.grid()
-plt.title(f"{select_date} @ {mol_line}", fontsize=20)
+plt.title(f"{select_date} @ {mol_str} {mol_line}", fontsize=20)
 plt.legend()
 plt.show()
 
@@ -165,6 +166,6 @@ plt.xlim([v_min, v_max])
 plt.xlabel("Velocity (km/s)", fontsize=16)
 plt.ylabel("Ta (K)", fontsize=16)
 plt.grid()
-plt.title(f"{select_date} @ {mol_line}", fontsize=20)
+plt.title(f"{select_date} @ {mol_str} {mol_line}", fontsize=20)
 plt.legend()
 plt.show()
