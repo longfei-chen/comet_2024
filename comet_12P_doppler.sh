@@ -1,25 +1,18 @@
-# python comet_12P_doppler.py UWB1 650 800
-# python comet_12P_doppler.py UWB4 2550 2700
-# python comet_12P_doppler.py UWB4 2850 3000
+UWB=("UWB1 500 650 800 950" \
+"UWB2 950 1150 1350 1550 1750" \
+"UWB3 1750 1950 2150 2350 2550" \
+"UWB4 2550 2700 2850 3000 3150 3300 3450")
 
 
-# mol=("CH3OCHO_1" "CH3OCHO_2")
-# mol=("18OH_1" "18OH_2" "18OH_3")
-# mol=("OH1665" "OH1667")
-# mol=("13CH3OH_1" "13CH3OH_2")
-# mol=("HC5N_1" "HC5N_2" "HC9N)
-# mol=("CH3264" "CH3335" "CH3349")
-# mol=("CH3CHOHCH2OH")
-mol=("c-C3H_1" "c-C3H_2" "c-C3H_3" "c-C3H_4")
-# mol=("H2SO4")
-
-
-dt=("20240417" "20240424" "20240510" "20240511" "20240513")
-
-for m in ${mol[@]}
+for band in "${UWB[@]}"
 do
-    for d in ${dt[@]}
+    band_i=(${band[@]})
+    N=${#band_i[@]}
+    band_name=${band_i[0]}
+    for idx in $(seq 1 $((N-2)))
     do
-        python comet_12P_OH_CH.py ${m} ${d}
+        band_begin=${band_i[$idx]}
+        band_end=${band_i[$idx+1]}
+        python comet_12P_doppler.py ${band_name} ${band_begin} ${band_end}
     done
 done
