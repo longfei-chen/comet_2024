@@ -18,6 +18,21 @@ band_freq_range_dict = {
 "UWB4": [2550, 2700, 2850, 3000, 3150, 3300, 3450]
 }
 
+line_dict = {
+"HI": 1420.408*u.MHz,
+"CH3OCHO_1": 1610.2493*u.MHz, "CH3OCHO_2": 1610.9063*u.MHz, 
+"18OH_1": 1637.5642*u.MHz, "18OH_2": 1639.5032*u.MHz, "18OH_3": 1692.7952*u.MHz, 
+"OH1665": 1665.4018*u.MHz, "OH1667": 1667.3590*u.MHz,
+"13CH3OH_1": 794.7061*u.MHz, "13CH3OH_2": 2384.0513*u.MHz, 
+"HC5N_1":2662.6641*u.MHz, "HC5N_2":	2662.8795*u.MHz, "HC9N": 2905.1827*u.MHz,
+"CH3264": 3263.794*u.MHz, "CH3335": 3335.481*u.MHz, "CH3349": 3349.193*u.MHz,
+"CH3CHOHCH2OH": 3349.7184*u.MHz, 
+"c-C3H_1": 3447.7142*u.MHz, "c-C3H_2": 3447.8425*u.MHz, "c-C3H_3": 3447.5665*u.MHz, "c-C3H_4": 3447.6246*u.MHz, 
+"H2SO4": 3350.2291*u.MHz,
+}
+
+
+
 def get_band_range(rest_freq: float):
     """
     Get the corresponding band and frequency range according the given rest frequency.
@@ -219,9 +234,9 @@ if __name__ == "__main__":
     band_name, freq_range = get_band_range(1665)
     print(band_name, freq_range)
 
-    Q = Q_Drahus2010(0.1*u.K*u.km/u.s, 30*u.K, vgas=1.0*u.km/u.s,
-                     geo_dist=0.7*u.au, rest_freq=1667*u.MHz,
-                     line_int=1e-6*u.nm*u.nm*u.MHz)
-    print(f"The production rate: {Q}")
+    Q_OH = Q_Bockelle1990(0.8*u.au, 0.1*u.Jy*u.km/u.s, 0.3)
+    print(f"Q(OH) = {Q_OH}")
 
-    
+    Q_OH = Q_Drahus2010(1.1*u.K*u.km/u.s, 100*u.K, 1.0*u.km/u.s, 
+                        0.8*u.au, 1667*u.MHz, 10**-5.7924*u.nm*u.nm*u.MHz)
+    print(f"Q(OH) = {Q_OH}")

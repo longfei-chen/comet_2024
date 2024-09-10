@@ -234,6 +234,10 @@ def plot_spec(x_arr_list, y_arr_list, label_list, vpos=None, xunit="velo", overl
             label = label_list[cur_ax]
             x = x_arr_list[cur_ax]
             y = y_arr_list[cur_ax]
+
+            max_y_value = np.max(y)
+            min_y_value = np.min(y)
+            max_abs_value = max(abs(max_y_value), abs(min_y_value))
             
             if not overlay:
                 ax = fig.add_subplot(row, col, cur_ax+1)
@@ -244,17 +248,19 @@ def plot_spec(x_arr_list, y_arr_list, label_list, vpos=None, xunit="velo", overl
                 if type(vpos) == list:
                     ax.axvline(vpos[cur_ax], ls="--", color="red")
                 
-            if (vpos != None) and (xunit == "freq"):
-                lr_width = 0.8
-                ud_width = 0.08
-                if type(vpos) == float:
+                if xunit == "freq":
+                    lr_width = 0.2
+                if xunit == "velo":
+                    lr_width = 30
+                
+                ud_width = max_abs_value * 2.0
+
+                if type(vpos) == float or type(vpos) == int:
                     ax.set_xlim(vpos-lr_width, vpos+lr_width)
                 if type(vpos) == list:
                     ax.set_xlim(vpos[cur_ax]-lr_width, vpos[cur_ax]+lr_width)
-                ax.set_ylim(-ud_width, +ud_width)
                 
-                #ax.set_xlim(vpos-0.3, vpos+0.8)
-                #ax.set_ylim(-0.5, +9)
+                ax.set_ylim(-ud_width, +ud_width)
 
 
             ax.plot(x, y, label=label)

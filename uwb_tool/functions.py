@@ -134,13 +134,13 @@ def get_freq_mask_range(uwb, xmin=None, xmax=None, nchan=1048576):
     return freq_mask, freq_array[freq_mask]
 
 
-def clean_restfreqlist(restfreqs, sel_freq_range_list):
+def clean_restfreqlist(restfreqs, sel_freq_range_list, nearest=0.5):
     new_restfreq_list = []
 
     prev_line = 0
     for line in restfreqs:
-        #two transitions should not be close to 0.7 MHz
-        if line - prev_line < 0.7:
+        #two transitions should not be close to nearest value (MHz)
+        if line - prev_line < nearest:
             continue
         
         prev_line = line
@@ -149,7 +149,7 @@ def clean_restfreqlist(restfreqs, sel_freq_range_list):
         for freq_range in sel_freq_range_list:
             fmin, fmax = freq_range
 
-            if line < fmin + 0.7 or line > fmax-0.7:
+            if line < fmin+nearest or line > fmax-nearest:
                 continue
             
             new_restfreq_list.append(line)

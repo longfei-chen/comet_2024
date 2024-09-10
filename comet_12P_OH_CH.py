@@ -19,17 +19,7 @@ if len(sys.argv) != 3:
     print(f"Usage: python {sys.argv[0]} OH1665 20240417")
     exit()
 
-line_dict = {
-"CH3OCHO_1": 1610.2493*u.MHz, "CH3OCHO_2": 1610.9063*u.MHz, 
-"18OH_1": 1637.5642*u.MHz, "18OH_2": 1639.5032*u.MHz, "18OH_3": 1692.7952*u.MHz, 
-"OH1665": 1665.4018*u.MHz, "OH1667": 1667.3590*u.MHz,
-"13CH3OH_1": 794.7061*u.MHz, "13CH3OH_2": 2384.0513*u.MHz, 
-"HC5N_1":2662.6641*u.MHz, "HC5N_2":	2662.8795*u.MHz, "HC9N": 2905.1827*u.MHz,
-"CH3264": 3263.794*u.MHz, "CH3335": 3335.481*u.MHz, "CH3349": 3349.193*u.MHz,
-"CH3CHOHCH2OH": 3349.7184*u.MHz, 
-"c-C3H_1": 3447.7142*u.MHz, "c-C3H_2": 3447.8425*u.MHz, "c-C3H_3": 3447.5665*u.MHz, "c-C3H_4": 3447.6246*u.MHz, 
-"H2SO4": 3350.2291*u.MHz,
-}
+line_dict = utils.line_dict
 
 obs_date_list = ["20240417", "20240424",
                  "20240510", "20240511", "20240513"]

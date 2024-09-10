@@ -14,11 +14,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 import scipy.signal as signal
 
-# from specline import constants, molspec
 from uwb_tool import functions, plotting
-from uwb_tool.ugdopplerfast import ugdopplerfast
-
-
 
 
 def polave_fits(obssetup, src_path, out_path, fig_path=None):
@@ -204,23 +200,6 @@ def polyfit(x_arr, y_arr, order=3):
     
     return poly_fit(x_arr)
 
-def vlsr_corr(target_ra, target_dec, mjd):
-    '''
-    velocity correction with respect to the target.
-
-    input: target_ra, target_dec, mjd
-    target_ra: float in degree.
-    target_dec: float in degree.
-    mjd: float.
-
-    return: float in km/s
-        corrected velocity with respect to the target.
-    '''
-    jd = mjd + 2400000.5
-
-    vlsr = ugdopplerfast([target_ra], [target_dec], [jd])
-
-    return vlsr[0]
 
 def rest_corr(vlsr, restfreq):
     '''

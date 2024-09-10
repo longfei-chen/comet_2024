@@ -13,6 +13,9 @@ do
     do
         band_begin=${band_i[$idx]}
         band_end=${band_i[$idx+1]}
+
+        echo "Processing" ${band_name} ${band_begin} ${band_end} "..."
         python comet_12P_doppler.py ${band_name} ${band_begin} ${band_end}
+        echo "Done"
     done
 done
