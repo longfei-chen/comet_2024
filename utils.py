@@ -122,6 +122,46 @@ def Q_Drahus2010(integrated_flux: u.Quantity, Tex: u.Quantity, vgas: u.Quantity,
     return Q
 
 
+def integrated_flux_Drahus2010(Q_est: float, Tex: u.Quantity, vgas: u.Quantity, 
+                 geo_dist: u.Quantity, rest_freq: u.Quantity, line_int: u.Quantity, 
+                 aperture_diameter: u.Quantity = 300*u.m) -> float:
+    """
+    Calculate the integrated flux from molecular production rate using Equation 2 from Drahus2010.
+
+    Parameter
+    =========
+    Q_est: The estimated production rate.
+    Tex: Gas temperature with unit u.K.
+    vgas: Outgassing velocity with unit u.km / u.s.
+    geo_dist: Comet geocentric distance with unit u.au.
+    rest_freq: Rest frequency with unit u.MHz or u.GHz.
+    line_int: Integrated line intensity with unit u.nm*u.nm*u.MHz.
+    aperture_diameter: The telescope's aperture dimeter with unit u.m.
+
+    Return
+    ======
+    integrated_flux: float. The requited integrated flux for the production rate.
+    """
+    b_factor = 1.2
+    h        = 6.626e-27           # erg*s
+    kB       = 1.38e-16            # erg/K
+    D = aperture_diameter.to(u.m).value
+    
+    integrated_flux = integrated_flux.to(u.K * u.m / u.s).value
+    Tex      = Tex.to(u.K).value
+    vgas     = vgas.to(u.m/u.s).value
+    geo_dist = geo_dist.to(u.m).value
+    rest_freq = rest_freq.to(u.Hz).value
+    line_int = line_int.to(u.m*u.m*u.Hz).value
+
+    const0   = 2.0 / np.sqrt(np.pi*np.log(2)) * (kB/h)
+
+    integrated_flux = Q_est / (const0 * (b_factor*geo_dist*vgas/D/line_int/rest_freq) * (np.exp(h*rest_freq/kB/Tex) - 1))
+    integrated_flux = integrated_flux * u.K * u.m / u.s
+
+    return integrated_flux.to(u.K * u.km / u.s).value
+
+
 def number_density_Haser(radius: float, Q: float, vgas: float, beta: float) -> float:
     """
     Calculate the number density using the Haser model.
