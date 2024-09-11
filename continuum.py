@@ -20,7 +20,8 @@ from uwb_tool import molspec
 import utils
 
 
-load_path = "./" #"F:/comet_2024/"
+# load_path = "./"
+load_path = "F:/comet_2024/"
 comet_name = "12P"
 
 obs_date_list = ["20240417", "20240424", 
