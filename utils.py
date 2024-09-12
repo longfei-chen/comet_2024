@@ -1,7 +1,7 @@
 import numpy as np
 import astropy.units as u
 from astropy.time import Time
-from scipy import integrate
+from scipy import integrate, interpolate
 from sbpy.data import Ephem
 from sbpy.data.phys import Phys
 from sbpy.activity import LTE, NonLTE
@@ -51,6 +51,30 @@ def get_band_range(rest_freq: float):
             if start_freq <= rest_freq <= end_freq:
                 return (band_name, [start_freq, end_freq])
     return ("", [0, 0])
+
+def get_gain(freq: float):
+    """
+    Return the gain at the specific frequency.
+
+    Parameter
+    ========
+    freq: Frequency in MHz.
+
+    Return
+    ======
+    return: float
+    """
+    gain_array = []
+    freq_array = []
+    for gain_file in ["gain_uwb1.npy", "gain_uwb2.npy", "gain_uwb3.npy", "gain_uwb4.npy"]:
+        gain_data = np.load(f"./tcal/gain/{gain_file}")
+        
+        gain_array = np.concatenate((gain_array, gain_data[:,1]))
+        freq_array = np.concatenate((freq_array, gain_data[:,0]))
+
+    gain_func = interpolate.interp1d(freq_array, gain_array)
+
+    return gain_func(freq)
 
 
 def Q_Bockelle1990(comet_distance: u.Quantity, integrated_flux: u.Quantity, inversion: float, 
