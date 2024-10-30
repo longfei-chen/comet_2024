@@ -21,8 +21,8 @@ from uwb_tool import molspec
 import utils
 
 
-# load_path = "./"
-load_path = "F:/comet_2024/"
+load_path = "./"
+# load_path = "F:/comet_2024/"
 comet_name = "12P"
 
 obs_date_list = ["20240417", "20240424", 
@@ -43,6 +43,7 @@ def get_full_band_sp(obs_date, freq_range=None):
     # flux density (Jy) to Ta for FAST
     if freq_range is not None:
         gain = utils.get_gain(np.mean(freq_range))
+        print(f"gain: {gain}")
     else:
         gain = 1.0
 
@@ -80,9 +81,9 @@ def get_full_band_sp(obs_date, freq_range=None):
 
 rfi_free_bands = [
 [2300,2350], [2375,2399], [2525,2550], [2600,2650], [2700,2760], 
-[2775,2800], [2850,2925], [3000,3040], [3150,3300]]
+[2775,2790], [2850,2925], [3000,3040], [3150,3300]]
 
-idx = 0
+idx = 8
 sp_20240417 = get_full_band_sp("20240417", rfi_free_bands[idx])
 sp_20240429 = get_full_band_sp("20240429", rfi_free_bands[idx])
 
@@ -96,7 +97,10 @@ continuum_0424 = baseline_func(sp_20240424.frequency.value, *param_0424)
 continuum_0503 = baseline_func(sp_20240503.frequency.value, *param_0503)
 
 continuum = continuum_0424 - continuum_0503
-opt_cont, _ = curve_fit(power_law_func, sp_20240424.frequency, continuum, maxfev=10000)
+# opt_cont, _ = curve_fit(power_law_func, sp_20240424.frequency.value, continuum, maxfev=10000)
+# freq_array = [2.3, 2.31, 2.32, 2.33, 2.34, 2.35]
+# cont_array = [0.0665, 0.0792, 0.0910, 0.1030, 0.113, 0.1276]
+# opt_cont, _ = curve_fit(power_law_func, freq_array, cont_array)
 
 
 # sp_20240510 = get_full_band_sp("20240510", rfi_free_bands[idx])
@@ -137,20 +141,20 @@ plt.show()
 
 
 # continuum-subtracted spectrum
-rms = functions.get_rms(sp_20240424.flux.value[0:18000]-continuum_0424[0:18000], sigma=3)
+rms = functions.get_rms(sp_20240424.flux.value-continuum_0424, sigma=3)
 print(f"rms: {rms:.2f} Jy")
-print(f"alpha: {opt_cont[1]}")
+# print(f"alpha: {opt_cont[1]}")
 # plt.plot(sp_20240424.frequency, sp_20240424.flux.value-continuum_0424, label="20240424")
 # plt.plot(sp_20240503.frequency, sp_20240503.flux.value-continuum_0503, label="20240503")
 
-plt.plot(sp_20240424.frequency, continuum, label="continuum")
-plt.plot(sp_20240424.frequency, power_law_func(sp_20240424.frequency.value, *opt_cont))
+# plt.plot(sp_20240424.frequency, continuum, label="continuum")
+# plt.plot(sp_20240424.frequency, power_law_func(sp_20240424.frequency.value, *opt_cont))
 
-plt.xlabel("Frequency (GHz)")
-plt.ylabel("Flux (Jy)")
-plt.grid()
-plt.legend()
-plt.show()
+# plt.xlabel("Frequency (GHz)")
+# plt.ylabel("Flux (Jy)")
+# plt.grid()
+# plt.legend()
+# plt.show()
 
 
 # plt.plot(sp_20240510.frequency, sp_20240510.flux, label="20240510")

@@ -19,19 +19,24 @@ band_freq_range_dict = {
 }
 
 line_dict = {
-"HI": 1420.408*u.MHz,
+"HI": 1420.408*u.MHz, "CH3OH": 3279.976*u.MHz,
 "CH3OCHO_1": 1610.2493*u.MHz, "CH3OCHO_2": 1610.9063*u.MHz, 
 "18OH_1": 1637.5642*u.MHz, "18OH_2": 1639.5032*u.MHz, "18OH_3": 1692.7952*u.MHz, 
 "OH1665": 1665.4018*u.MHz, "OH1667": 1667.3590*u.MHz,
+"CH3264": 3263.794*u.MHz, "CH3335": 3335.481*u.MHz, "CH3349": 3349.193*u.MHz,
 "13CH3OH_1": 794.7061*u.MHz, "13CH3OH_2": 2384.0513*u.MHz, 
 "HC5N_1":2662.6641*u.MHz, "HC5N_2":	2662.8795*u.MHz, "HC9N": 2905.1827*u.MHz,
-"CH3264": 3263.794*u.MHz, "CH3335": 3335.481*u.MHz, "CH3349": 3349.193*u.MHz,
 "CH3CHOHCH2OH": 3349.7184*u.MHz, 
 "c-C3H_1": 3447.7142*u.MHz, "c-C3H_2": 3447.8425*u.MHz, "c-C3H_3": 3447.5665*u.MHz, "c-C3H_4": 3447.6246*u.MHz, 
 "H2SO4": 3350.2291*u.MHz,
+"H2NCH2COOH-II": 3193.1911*u.MHz, "C8O": 2795.9564*u.MHz,
+"H2C(CN)2": 2795.3076*u.MHz,
 }
 
-
+line_int = {
+"OH1665": 10**-6.0487*u.nm*u.nm*u.MHz, "OH1667": 10**-5.7924*u.nm*u.nm*u.MHz,
+"18OH_1": 10**-6.0591*u.nm*u.nm*u.MHz,
+}
 
 def get_band_range(rest_freq: float):
     """
@@ -74,7 +79,12 @@ def get_gain(freq: float):
 
     gain_func = interpolate.interp1d(freq_array, gain_array)
 
-    return gain_func(freq)
+    if freq > freq_array[-1]:
+        gain = gain_func(freq_array[-1])
+    else:
+        gain = gain_func(freq)
+
+    return gain
 
 
 def Q_Bockelle1990(comet_distance: u.Quantity, integrated_flux: u.Quantity, inversion: float, 
@@ -212,7 +222,7 @@ def column_density_Haser(Q: float, vgas: float, beta: float,
 
     Parameter
     =========
-    Q: The molecular production rate in unit cm^-2.
+    Q: The molecular production rate in unit s^-1.
     vgas: The outgassing velocity in unit km/s.
     beta: photodissociation rate of the species in unit s^-1.
     min_length: The lower integration radius from the comet nucleus in unit km.
@@ -231,7 +241,7 @@ def Q_Haser(comet_name: str, parent_mol: str, mol_tag: str,
             temperature: u.Quantity, vgas: u.Quantity, 
             rest_freq: u.Quantity, obs_time: u.Quantity,
             integrated_flux: u.Quantity, 
-            Q_estimate: float, aperture: u.Quantity = 300*u.m, b: float = 1.2,
+            Q_estimate: u.Quantity, aperture: u.Quantity = 300*u.m, b: float = 1.2,
             is_LTE: bool = True, from_Drahus: bool = False) -> float:
     """
     Calculate the production rate by calling sbpy module.
@@ -246,7 +256,7 @@ def Q_Haser(comet_name: str, parent_mol: str, mol_tag: str,
     rest_freq: The rest frequency with unit u.MHz.
     obs_time: The observational time with iso format.
     integrated_flux: The integrated line flux with unit u.K*u.km/u.s.
-    Q_estimate: The initial guess production rate.
+    Q_estimate: The initial guess production rate with unit u.s^-1.
     aperture: The telescope's aperture with unit u.m.
     b: The prefactor of the beam.
     is_LTE: The production rate under LTE condition.
@@ -281,7 +291,7 @@ def Q_Haser(comet_name: str, parent_mol: str, mol_tag: str,
         nonlte = NonLTE()
         cdensity = nonlte.from_pyradex(integrated_flux, mol_data, iter=500)
 
-    mol_data.apply([cdensity.value] * cdensity.unit, name='cdensity')
+    mol_data.apply([cdensity.value] / cdensity.unit, name='cdensity')
 
     tnum = total_number(mol_data, aperture, b)
     mol_data.apply([tnum.value], name='total_number')
@@ -289,7 +299,7 @@ def Q_Haser(comet_name: str, parent_mol: str, mol_tag: str,
 
     parent = photo_timescale(parent_mol) * vgas
     coma = Haser(Q_estimate, vgas, parent)
-    Q = from_Haser(coma, mol_data, aper=aperture)
+    Q = from_Haser(coma, mol_data, aper=aperture)[0]
 
     return Q.value
 

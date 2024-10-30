@@ -20,10 +20,16 @@ from uwb_tool import molspec
 import utils
 
 mod = "onoff"
-mol = "CH3CHOHCH2OH"
+mol = "OH"
 
-# catlog = linedb.get_linedb()
-catlog = {
+# catalog = linedb.get_linedb()
+
+rrl = linedb.rrl()
+# line_cdms = linedb.from_cdms("./line_db/cdms_0.5-3.45GHz_Aij-9.csv")
+# line_jpl = linedb.from_jpl("./line_db/jpl_0.5-3.45GHz.dat")
+# line_splat = linedb.from_splatalogue("./line_db/splatalogue_0.5-3.45GHz_0-100K_Aij-9.csv")
+
+catalog = {
 "OD": [1190.7741, 1191.1047],
 "18OH": [1584.274, 1637.564, 1639.503, 1692.795],
 "17OH": [1322.4597, 1455.7225, 1624.5096, 1626.1564, 1656.5422, 1902.0885, 1940.2756, 2008.3517, 2027.319, 2102.7856, 2117.7941],
@@ -38,16 +44,21 @@ catlog = {
 "HC11N": [1690.6293, 2028.7551, 2705.0066, 2705.0066, 3043.1323, 3043.1323],
 "CH3CHOHCH2OH": [3349.7184], 
 "c-C3H": [3447.7142, 3447.8425, 3447.5665, 3447.6246], 
-"H2SO4": [3350.2291],
+"H2SO4": [2797.8532, 3350.2291],
+"C8O": [2795.9564],
+"OBrO": [2797.3685],
+"H2NCH2COOH-II": [3193.1911],
 }
-rest_freq_list = catlog[mol]
+catalog.update(rrl)
+
+rest_freq_list = catalog[mol]
 rest_freq_list = functions.clean_restfreqlist(rest_freq_list, [[500, 3450]])
 
 if len(rest_freq_list) == 0:
     functions.prt_info("No transition lines for %s in the selected frequency range.", mol)
     exit()
 
-load_path = "F:/comet_2024/"
+load_path = "./"
 comet_name = "12P"
 
 obs_date_list = ["20240417", "20240424",

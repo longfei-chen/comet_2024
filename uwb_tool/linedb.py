@@ -81,7 +81,7 @@ def from_cdms(db_file, Aij=None, Elow=None):
         for line in fp.readlines():
             line = line.strip().split('|')
 
-            if line[0] == "T_Name:":
+            if line[0] == "T_Name":
                 continue
 
             mol = line[0].split(";")[0]
@@ -166,7 +166,7 @@ def from_splatalogue(db_file, Aij=None, Eup=None):
                 continue
 
             mol = line[0]
-            rest_freq = float(line[2].split())
+            rest_freq = float(line[2].split(',')[-1])
             
             if (Aij is not None) and (Aij < float(line[14])):
                 continue
