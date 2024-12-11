@@ -74,7 +74,7 @@ def is_dir_exists(path, mkdir=False):
     return True
 
 def get_tcal(tcal_file, pol_ave=True):
-    tcal = pd.read_excel(tcal_file, header=1, usecols="A,C,F")
+    tcal = pd.read_excel(tcal_file, header=1, usecols="A,C,E")
 
     tcal = np.array(tcal)
 

@@ -538,7 +538,7 @@ def comet_ON_minus_OFF(obssetup, prod_path, freqlimit=None):
         functions.prt_info("Baseline substraction for %s...", on_file_name)
 
 
-def comet_ephem(ephem_file, tstr2mjd=True):
+def comet_ephem(ephem_file, tstr2mjd=True, usecol=-3):
     mjd_arr = []
     velo_arr = []
     
@@ -561,7 +561,7 @@ def comet_ephem(ephem_file, tstr2mjd=True):
                 else:
                     mjd_arr.append(float(line[0])-2400000.5)
                 
-                velo_arr.append(float(line[-3]))
+                velo_arr.append(float(line[usecol]))
             
     return interp1d(np.arange(len(velo_arr)), velo_arr, kind="linear")
     
