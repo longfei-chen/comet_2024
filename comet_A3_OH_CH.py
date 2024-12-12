@@ -41,10 +41,11 @@ if select_date not in obs_date_list:
     exit()
 
 
-receiver, fixed_freq_limit = utils.get_band_range(mol_line.value)
+#receiver, fixed_freq_limit = utils.get_band_range(mol_line.value)
+receiver = "UWB2"
+fixed_freq_limit = [1663, 1669]
 
-
-based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_outputs/"
+based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_only_for_OH/"
 comet_name = "A3"
 
 # prepare for the frequency axis
@@ -132,7 +133,9 @@ integ_flux = integrate.simpson(velo_sp.flux, velo_sp.velocity)
 gain = utils.get_gain(mol_line.value)
 integ_flux_Jy = integ_flux / gain
 # Q1 = utils.Q_Drahus2010(integ_flux*u.K*u.km/u.s, 50*u.K, 1.0*u.km/u.s, 1.6*u.au, mol_line, utils.line_int[mol_str])
-Q2 = utils.Q_Bockelle1990(0.5*u.au, integ_flux_Jy*u.Jy*u.km/u.s, inversion=0.243)
+earth_comet_dist = utils.comet_property[comet_name][select_date][0] * u.au
+inversion_factor = abs(utils.comet_property[comet_name][select_date][1])
+Q2 = utils.Q_Bockelle1990(earth_comet_dist, integ_flux_Jy*u.Jy*u.km/u.s, inversion=inversion_factor)
 # Q3 = utils.Q_Haser("90000224", "H2O", "^OH$", 50*u.K, 1.0*u.km/u.s, mol_line, 
 #                    "2024-04-17 14:53:00.000", integ_flux*u.K*u.km/u.s, 1e28/u.s)
 print(f"{'Integ_flux (K*km/s)':20s}Q_{mol_str} (s^-1)")

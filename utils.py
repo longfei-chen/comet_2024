@@ -10,6 +10,12 @@ from sbpy.activity import Haser, photo_timescale, from_Haser
 from sbpy.activity import beta_factor, einstein_coeff, intensity_conversion
 
 
+comet_property = {
+#comet_name: {date: [earth-comet-dist, inversion-factor]}
+"A3": {"20241003": [0.68, -0.004], "20241004": [0.64, +0.063],
+       "20241013": [0.47, -0.254], "20241014": [0.48, -0.228],
+       "20241016": [0.50, -0.158], "20241017": [0.52, -0.158]}
+}
 
 band_freq_range_dict = {
 "UWB1": [500, 650, 800, 950],

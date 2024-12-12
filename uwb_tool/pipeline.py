@@ -51,8 +51,17 @@ def polave_fits(obssetup, src_path, out_path, fig_path=None):
         hdu_data = functions.get_fits_data(fi)
 
         if fig_path != None:
-            xx = np.average(hdu_data[:, :, 0], axis=0)
-            yy = np.average(hdu_data[:, :, 1], axis=0)
+            if ("comet" in obssetup) and (obssetup["comet"] == "A3"):
+                freq_mask, freq_range = functions.get_freq_mask_range(obssetup["receiver"], 
+                                                                      xmin=obssetup["keep_freq"][0], 
+                                                                      xmax=obssetup["keep_freq"][1])
+                hdu_data[:, ~freq_mask, 0] = 0
+                hdu_data[:, ~freq_mask, 1] = 0
+                xx = np.average(hdu_data[:, :, 0], axis=0)
+                yy = np.average(hdu_data[:, :, 1], axis=0)
+            else:
+                xx = np.average(hdu_data[:, :, 0], axis=0)
+                yy = np.average(hdu_data[:, :, 1], axis=0)
 
             functions.prt_info("plot polarization...")
             plotting.plot_pol(fig_path, file_idx, xx, yy)
