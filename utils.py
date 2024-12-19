@@ -11,10 +11,13 @@ from sbpy.activity import beta_factor, einstein_coeff, intensity_conversion
 
 
 comet_property = {
-#comet_name: {date: [earth-comet-dist, inversion-factor]}
-"A3": {"20241003": [0.68, -0.004], "20241004": [0.64, +0.063],
-       "20241013": [0.47, -0.254], "20241014": [0.48, -0.228],
-       "20241016": [0.50, -0.158], "20241017": [0.52, -0.158]}
+#comet_name: {date: [earth-comet-dist, sun-comet-dist, inversion-factor]}
+"A3": {"20241003": [0.68, 0.42, -0.004], "20241004": [0.64, 0.43, +0.063],
+       "20241013": [0.47, 0.57, -0.254], "20241014": [0.48, 0.59, -0.228],
+       "20241016": [0.50, 0.62, -0.158], "20241017": [0.52, 0.64, -0.158]},
+"12P": {"20240417": [1.61, 0.78, -0.164], "20240424": [1.60, 0.78, 0.03],
+        "20240510": [1.58, 0.86, -0.207], "20240511": [1.58, 0.88, -0.160],
+        "20240513": [1.57, 0.88, -0.087]},
 }
 
 band_freq_range_dict = {
@@ -93,14 +96,15 @@ def get_gain(freq: float):
     return gain
 
 
-def Q_Bockelle1990(comet_distance: u.Quantity, integrated_flux: u.Quantity, inversion: float, 
+def Q_Bockellee1990(earth_comet_distance: u.Quantity, sun_comet_distance: u.Quantity, integrated_flux: u.Quantity, inversion: float, 
                    tau: float = 1.1e5, f: float = 1.0, Tbg: float = 3.0) -> float:
     """
     Calculate the OH production rate using method from Bockelee-Morvan1990.
 
     Parameter
     =========
-    comet_distance:  Earth-comet distance with unit u.au.
+    earth_comet_distance:  Earth-comet distance with unit u.au.
+    sun_comet_distance:  Sun-comet distance with unit u.au.
     integrated_flux: The integration flux with unit u.Jy*u.km/u.s.
     inversion:       Inversion of the ground state of 18cm OH. It depends on the comet heliocentric radial velocity (Tab.5 Schleicher1988).
     tau:             OH lifetime at 1 AU in sec.
@@ -112,13 +116,14 @@ def Q_Bockelle1990(comet_distance: u.Quantity, integrated_flux: u.Quantity, inve
     Q: float. The production rate of OH.
     """
     # total number of OH
-    comet_distance = comet_distance.to(u.au).value
+    earth_comet_distance = earth_comet_distance.to(u.au).value
+    sun_comet_distance = sun_comet_distance.to(u.au).value
     integrated_flux = integrated_flux.to(u.Jy*u.km/u.s).value
     
-    total_number = 2.33e34 * (comet_distance**2) * integrated_flux / (f * inversion * Tbg)
+    total_number = 2.33e34 * (earth_comet_distance**2) * integrated_flux / (f * inversion * Tbg)
 
     # production rate
-    Q = total_number / tau
+    Q = total_number / (tau*sun_comet_distance**2)
 
     return Q
 

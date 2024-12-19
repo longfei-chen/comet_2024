@@ -94,13 +94,6 @@ sp_baseline_removed = sp - baseline
 # Smoothing
 sp_smoothed = box_smooth(sp_baseline_removed, width=5)
 
-# standing wave removing
-# if select_date == "20240510":
-#     standing_wave = pipeline.medfilter(sp_smoothed.flux, 0.5, 1100/1048576)
-#     sw = Spectrum1D(standing_wave * u.K,
-#                     spectral_axis=new_spec_array)
-
-#     sp_smoothed = sp_smoothed - sw
 
 # Fitting
 init_condition = models.Gaussian1D(-0.2, mol_line, 0.03*u.MHz)
@@ -125,6 +118,7 @@ print(f"{rms.to(u.mK).value:<16.2f}"
       f"{gaussian_fwhm(velo_sp).value:<16.2f}"
       f"{velo_sp.velocity[peak_ta_idx].value:<16.2f}")
 
+
 # production rate
 # integ_flux = line_flux(velo_sp)
 # print(integ_flux)
@@ -132,16 +126,20 @@ print(f"{rms.to(u.mK).value:<16.2f}"
 integ_flux = integrate.simpson(velo_sp.flux, velo_sp.velocity)
 gain = utils.get_gain(mol_line.value)
 integ_flux_Jy = integ_flux / gain
-# Q1 = utils.Q_Drahus2010(integ_flux*u.K*u.km/u.s, 50*u.K, 1.0*u.km/u.s, 1.6*u.au, mol_line, utils.line_int[mol_str])
+
+velo_reso = velo_sp.velocity[0] - velo_sp.velocity[1]
+integ_flux_std_dev = rms.value * np.sqrt(integ_flux_Jy * velo_reso.value)
+
 earth_comet_dist = utils.comet_property[comet_name][select_date][0] * u.au
-inversion_factor = abs(utils.comet_property[comet_name][select_date][1])
-Q2 = utils.Q_Bockelle1990(earth_comet_dist, integ_flux_Jy*u.Jy*u.km/u.s, inversion=inversion_factor)
-# Q3 = utils.Q_Haser("90000224", "H2O", "^OH$", 50*u.K, 1.0*u.km/u.s, mol_line, 
-#                    "2024-04-17 14:53:00.000", integ_flux*u.K*u.km/u.s, 1e28/u.s)
-print(f"{'Integ_flux (K*km/s)':20s}Q_{mol_str} (s^-1)")
-print(f"{integ_flux:<20.3e}"
-    #   f"{Q1:<10.3e}"
-      f"{Q2:<10.3e}")
+sun_comet_dist = utils.comet_property[comet_name][select_date][1] * u.au
+inversion_factor = abs(utils.comet_property[comet_name][select_date][-1])
+
+Q = utils.Q_Bockellee1990(earth_comet_dist, sun_comet_dist, integ_flux_Jy*u.Jy*u.km/u.s, inversion=inversion_factor)
+Q_err = utils.Q_Bockellee1990(earth_comet_dist, sun_comet_dist, integ_flux_std_dev*u.Jy*u.km/u.s, inversion=inversion_factor)
+
+print(f"Integ_flux (Jy*km/s): {integ_flux_Jy:<10.3e} +- {integ_flux_std_dev:<.3e}")
+print(f"Q_{mol_str} (s^-1): {Q:<10.3e} +- {Q_err:.3e}")
+
 
 
 # plot with respect to frequency
