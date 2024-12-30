@@ -123,9 +123,13 @@ print(f"{rms.to(u.mK).value:<16.2f}"
 # integ_flux = line_flux(velo_sp)
 # print(integ_flux)
 
-integ_flux = integrate.simpson(velo_sp.flux, velo_sp.velocity)
+integ_flux = integrate.simpson(y=velo_sp.flux, x=velo_sp.velocity)
 gain = utils.get_gain(mol_line.value)
 integ_flux_Jy = integ_flux / gain
+
+save_data = np.array([velo_sp.velocity.value, sp_smoothed.flux.value/gain]).T
+np.save("comet_A3_20241013.npy", save_data)
+
 
 velo_reso = velo_sp.velocity[0] - velo_sp.velocity[1]
 integ_flux_std_dev = rms.value * np.sqrt(integ_flux_Jy * velo_reso.value)

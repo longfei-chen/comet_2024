@@ -127,7 +127,7 @@ print(f"{rms.to(u.mK).value:<16.2f}"
       f"{velo_sp.velocity[peak_ta_idx].value:<16.2f}")
 
 
-integ_flux = integrate.simpson(velo_sp.flux, velo_sp.velocity)
+integ_flux = integrate.simpson(y=velo_sp.flux, x=velo_sp.velocity)
 gain = utils.get_gain(mol_line.value)
 integ_flux_Jy = integ_flux / gain
 
