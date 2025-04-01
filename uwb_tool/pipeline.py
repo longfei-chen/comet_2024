@@ -93,9 +93,9 @@ def power_ave(load_path, prod_path):
         example: power_ave.npy
     '''
     #check the exists of the data path
-    if not functions.is_dir_exists(load_path):
-        functions.prt_info("path %s is not exist.", load_path)
-        exit(0)
+    if (not functions.is_dir_exists(load_path)) or functions.is_empty_dir(load_path):
+        functions.prt_info("Loading path %s is not exist or empty. Continuing", load_path)
+        return 0
 
     #check and make the out path dir
     functions.is_dir_exists(prod_path, mkdir=True)
@@ -135,9 +135,9 @@ def ta_ave(obssetup, data_path, prod_path, freqlimit=None):
         output file example: Ta_1419_1421_ave.npy
     '''
     #check the exists of the data path
-    if not functions.is_dir_exists(data_path):
-        functions.prt_info("path %s is not exist.", data_path)
-        exit(0)
+    if (not functions.is_dir_exists(data_path)) or functions.is_empty_dir(data_path):
+        functions.prt_info("Loading path %s is not exist or empty. Continuing", data_path)
+        return 0
 
     #check and make the out path dir
     functions.is_dir_exists(prod_path, mkdir=True)
@@ -290,9 +290,9 @@ def ta2flux(ta_arr, eta=0.53):
 
 
 def merge_figs(obssetup, fig_path, prod_path, freqlimit=None, fig_pattern_list=["*_dyn.pdf", "*_Ta.pdf", "*_timebin.pdf"]):
-    if not functions.is_dir_exists(fig_path):
-        functions.prt_info("path %s is not exist.", fig_path)
-        exit(0)
+    if (not functions.is_dir_exists(fig_path)) or functions.is_empty_dir(fig_path):
+        functions.prt_info("Loading path %s is not exist or empty. Continuing", fig_path)
+        return 0
     
     functions.is_dir_exists(prod_path, mkdir=True)
     
@@ -324,9 +324,9 @@ def comet_split_source_onoff(obssetup, load_path, out_path):
     output file name example: power_source_on_0001.npy
     """
     #check the exists of the load file
-    if not functions.is_dir_exists(load_path):
-        functions.prt_info("path %s is not exist.", load_path)
-        exit(0)
+    if (not functions.is_dir_exists(load_path)) or functions.is_empty_dir(load_path):
+        functions.prt_info("Loading path %s is not exist or empty. Continuing", load_path)
+        return 0
     
     #check and make the output data path
     source_on_path = out_path + "/" + "sourceON"
@@ -401,9 +401,9 @@ def comet_cal_power_data(obssetup, load_path, data_path, freqlimit=None, cycle=3
     output file name example: Ta_1665_1667_0000.npy
     """
     #check the exists of the load file
-    if not functions.is_dir_exists(load_path):
-        functions.prt_info("path %s is not exist.", load_path)
-        exit(0)
+    if (not functions.is_dir_exists(load_path)) or functions.is_empty_dir(load_path):
+        functions.prt_info("Loading path %s is not exist or empty. Continuing", load_path)
+        return 0
     
     #check and make the output file path
     functions.is_dir_exists(data_path, mkdir=True)
@@ -488,7 +488,7 @@ def comet_cal_power_data(obssetup, load_path, data_path, freqlimit=None, cycle=3
             functions.prt_info("plotting dynamic spectrum...")
             xyrange = [freqlimit[0], freqlimit[1]]
             xyrange += [(idx-1)*period*cycle, idx*period*cycle]
-            plotting.plot_dyn(fig_path, freqlimit, idx, xyrange, image)
+            plotting.plot_dyn(fig_path, freqlimit, idx, xyrange, image, outlier=True)
 
             #plot timebin
             functions.prt_info("plotting timebin...")
@@ -499,7 +499,7 @@ def comet_cal_power_data(obssetup, load_path, data_path, freqlimit=None, cycle=3
 
             #plot Ta
             functions.prt_info("plotting Ta...")
-            plotting.plot_Ta(fig_path, freqlimit, idx, freq_range, Ta)
+            plotting.plot_Ta(fig_path, freqlimit, idx, freq_range, Ta, outlier=True)
             
             #plot cal
             functions.prt_info("plotting cal...")
@@ -514,9 +514,9 @@ def comet_cal_power_data(obssetup, load_path, data_path, freqlimit=None, cycle=3
     functions.prt_info("Calibration finished for %s...", load_path)
 
 def comet_ON_minus_OFF(obssetup, prod_path, freqlimit=None):
-    if not functions.is_dir_exists(prod_path):
-        functions.prt_info("path %s is not exits.", prod_path)
-        exit(0)
+    if (not functions.is_dir_exists(prod_path)) or functions.is_empty_dir(prod_path):
+        functions.prt_info("Loading path %s is not exits or empty. Continuing", prod_path)
+        return 0
     
     if freqlimit is None:
         freqlimit = functions.UWB_receiver[obssetup["receiver"]]["recommended_range"]

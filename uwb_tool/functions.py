@@ -73,6 +73,12 @@ def is_dir_exists(path, mkdir=False):
     
     return True
 
+def is_empty_dir(path):
+    if len(os.listdir(path)) == 0:
+        return True
+    else:
+        return False
+
 def get_tcal(tcal_file, pol_ave=True):
     tcal = pd.read_excel(tcal_file, header=1, usecols="A,C,E")
 

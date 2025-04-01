@@ -9,6 +9,7 @@ import matplotlib
 # matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from matplotlib.colors import LinearSegmentedColormap
 
 
 from uwb_tool import functions
@@ -51,32 +52,45 @@ def plot_pol(fig_path, idx, xx, yy):
     plt.close()
     del xx, yy
 
-def plot_dyn(fig_path, freqlimit, idx, xyrange, image):
+def plot_dyn(fig_path, freqlimit, idx, xyrange, image, outlier=False):
     '''
     input: fig_path, freqlimit, idx, xyrange, image
     return: none
     
     saved file: fig_path + "/" + "_".join([str(freqlimit[0]), str(freqlimit[1]), "%0.4d"%idx, "dyn.pdf"])
     '''
-    plt.figure(figsize=(15,10))
-    plt.xlabel("Frequency (MHz)", fontsize=15)
-    plt.ylabel("Time (second)", fontsize=15)
-    plt.xticks(size=13)
-    plt.yticks(size=13)
+    fig, ax = plt.subplots(figsize=(15,10))
+    
+    if outlier:
+        q1 = np.percentile(image, 20)
+        q3 = np.percentile(image, 80)
+        iqr = q3 - q1
+        outlier_value = q3 + 1.5*iqr
+        outlier_mask = image > outlier_value
+        masked_image = np.where(outlier_mask, np.nan, image)
 
-    plt.imshow(image, aspect="auto", origin="lower", extent=xyrange)
+        black_cmap = LinearSegmentedColormap.from_list("black", [(0, "black"),(1, "black")], N=2)
+        ax.imshow(outlier_mask, cmap=black_cmap)
+    else:
+        masked_image = image
+    
+    normal_cmap = plt.cm.coolwarm 
+    im = ax.imshow(masked_image, aspect="auto", origin="lower", extent=xyrange, cmap=normal_cmap)
 
-    cb = plt.colorbar()
-    cb.set_label("Power", fontsize=15)
-    cb.ax.tick_params(labelsize=13)
+    cbar = fig.colorbar(im)
+    cbar.set_label("Power", fontsize=15)
+    cbar.ax.tick_params(labelsize=13)
 
+    ax.set_xlabel("Frequency (MHz)", fontsize=15)
+    ax.set_ylabel("Time (second)", fontsize=15)
+    ax.tick_params(axis="both", labelsize=13)
 
     fig_name = "_".join([str(freqlimit[0]), str(freqlimit[1]), "%0.4d"%idx, "dyn.pdf"])
     fig_name = fig_path + "/" + fig_name
     plt.savefig(fig_name)
     
     plt.close()
-    del xyrange, image
+    del xyrange, image, masked_image
 
 def plot_timebin(fig_path, freqlimit, idx, period, x, y):
     '''
@@ -103,7 +117,7 @@ def plot_timebin(fig_path, freqlimit, idx, period, x, y):
     plt.close()
     del x, y
 
-def plot_Ta(fig_path, freqlimit, idx, freq_array, Ta_array):
+def plot_Ta(fig_path, freqlimit, idx, freq_array, Ta_array, outlier=False):
     '''
     input: fig_path, freqlimit, idx, freq, Ta
     return: none
@@ -118,6 +132,13 @@ def plot_Ta(fig_path, freqlimit, idx, freq_array, Ta_array):
     plt.yticks(size=13)
 
     plt.xlim(freqlimit[0], freqlimit[1])
+    if outlier:
+        q1 = np.percentile(Ta_array, 20)
+        q3 = np.percentile(Ta_array, 80)
+        iqr = q3 - q1
+        upper_y = q3 + 1.5*iqr
+        lower_y = np.min(Ta_array)
+        plt.ylim(lower_y, upper_y)
 
     plt.plot(freq_array, Ta_array)
 

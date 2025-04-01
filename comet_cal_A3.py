@@ -75,11 +75,10 @@ def cal_comet_raw_data(comet_name, obsdate, receiver, freq_limit):
 
 if __name__ == "__main__":
     comet_name = "A3"
-    obsdate = ["20241016", "20241017"] #["20241003", "20241004", "20241013", "20241014"]
+    obsdate = ["20241003", "20241004", "20241013", "20241014", "20241016", "20241017"]
     
     receiver = "UWB1"
     freq_limit_list = [[500,650], [650,800], [800,950]]
-    # freq_limit_list = [[500,950]]
     for obs_date,freq_limit in product(obsdate, freq_limit_list):
         cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
     
@@ -88,10 +87,10 @@ if __name__ == "__main__":
     for obs_date,freq_limit in product(obsdate, freq_limit_list):
         cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
     
-    # receiver = "UWB3"
-    # freq_limit_list = [[1750,1950], [1950,2150], [2150,2350], [2350,2550]]
-    # for obs_date,freq_limit in product(obsdate, freq_limit_list):
-    #     cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
+    receiver = "UWB3"
+    freq_limit_list = [[1750,1950], [1950,2150], [2150,2350], [2350,2550]]
+    for obs_date,freq_limit in product(obsdate, freq_limit_list):
+        cal_comet_raw_data(comet_name, obs_date, receiver, freq_limit)
     
     receiver = "UWB4"
     freq_limit_list = [[2550,2700], [2700,2850], [2850,3000], [3000,3150], [3150,3300], [3300,3450]]
