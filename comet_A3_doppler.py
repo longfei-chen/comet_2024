@@ -19,7 +19,7 @@ fixed_freq_limit = [int(sys.argv[2]), int(sys.argv[3])]
 
 
 # based_data_path = "./"
-based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_only_for_OH/"
+based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_selected/"
 comet_name = "A3"
 
 obs_date_list = ["20241003", "20241004", "20241013", "20241014", "20241016", "20241017"]

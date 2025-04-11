@@ -1,3 +1,4 @@
+import os, glob
 import numpy as np
 import astropy.units as u
 from astropy.time import Time
@@ -40,6 +41,14 @@ line_dict = {
 "H2SO4": 3350.2291*u.MHz,
 "H2NCH2COOH-II": 3193.1911*u.MHz, "C8O": 2795.9564*u.MHz,
 "H2C(CN)2": 2795.3076*u.MHz,
+"HC7N": 3383.792200*u.MHz,
+}
+
+line_db = {
+"OH": [1665.4018, 1667.3590],
+"CH": [3263.794, 3335.481, 3349.193],
+"CH3OH": [3279.976],
+"18OH": [1637.5642, 1639.5032, 1692.7952],
 }
 
 line_int = {
@@ -47,23 +56,34 @@ line_int = {
 "18OH_1": 10**-6.0591*u.nm*u.nm*u.MHz,
 }
 
-def get_band_range(rest_freq: float):
+def get_band_range(rest_freq: float, data_path, comet_name):
     """
     Get the corresponding band and frequency range according the given rest frequency.
     
     Parameter
     ==========
     rest_freq: float
+    data_path: str. the input data path
+    comet_name: str. the comet name
 
     Return
     ======
     return: (str, [int, int])
     """
-    for band_name, freq_intervals in band_freq_range_dict.items():
-        for i in range(len(freq_intervals)-1):
-            start_freq, end_freq = freq_intervals[i], freq_intervals[i+1]
-            if start_freq <= rest_freq <= end_freq:
-                return (band_name, [start_freq, end_freq])
+    obs_dates = comet_property[comet_name].keys()
+    bands = ["UWB1", "UWB2", "UWB3", "UWB4"]
+    for dt in obs_dates:
+        for band in bands:
+            in_path = f"{data_path}/{comet_name}/{dt}/{band}/product"
+            if not os.path.exists(in_path):
+                continue
+            for file in sorted(glob.glob(f"{in_path}/Ta_*_doppler.npy")):
+                filename = file.split("/")[-1]
+                split_arr = filename.split("_")
+                lower, upper = int(split_arr[1]), int(split_arr[2])
+                if lower <= rest_freq <= upper:
+                    return (band, [lower, upper])
+
     return ("", [0, 0])
 
 def get_gain(freq: float):

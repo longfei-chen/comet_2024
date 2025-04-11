@@ -4,22 +4,28 @@
 '''
 molecule spectral class
 '''
-import os
+import os, glob
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
+import astropy.units as u
+from astropy.modeling import models
+from astropy.coordinates import SpectralCoord
+from specutils import Spectrum1D
+from specutils.manipulation import box_smooth
+from specutils.fitting.continuum import fit_continuum
+from specutils.fitting import fit_lines
 
-from uwb_tool import pipeline
 from uwb_tool import functions
 from uwb_tool import plotting
 
 
 class obsspec():
     '''
-    obsspec class to store the observational data for a list of mjds.
+    obsspec class to store the observational data for a list of obsdates.
 
-    attributes: obsdates, mjds, specs, intensity
+    attributes: obsdates, specs, intensity
     obsdates: list of string. observational date.
-        mjds: list of float. observational mjds.
        specs: list of 2d array of the spectral data.
               column one: frequency
               column two: velocity
@@ -34,12 +40,11 @@ class obsspec():
         ave_spec()
         int_cutoff(vmin=-15, vmax=15, vstep=0.101)
         rfi_remove(sigma=6)
-        show_spec(mjd_idx=[1,2,3], xunit="velo | freq")
+        show_spec(obs_index=[1,2,3], xunit="velo | freq")
         show_int(xunit="velo | freq")
     '''
-    def __init__(self, obsdates=[], mjds=[], specs=[]):
+    def __init__(self, obsdates=[], specs=[]):
         self.obsdates = obsdates
-        self.mjds = mjds
         self.specs = specs
         
         self.intensity = self.ave_spec()
@@ -48,8 +53,8 @@ class obsspec():
         
     
     def __init_check(self):
-        if len(self.obsdates) != len(self.mjds) and len(self.mjds) != len(self.specs):
-            functions.prt_info("Length of obsdates, mjds and specs should be equal.")
+        if len(self.obsdates) != len(self.specs):
+            functions.prt_info("Length of obsdates and specs should be equal.")
             return
 
     def __attr_check(self, primary=False):
@@ -73,7 +78,7 @@ class obsspec():
 
     def ave_spec(self):
         '''
-        average all the mjds spectral.
+        average all the obsdates spectral.
 
         input: none
 
@@ -81,11 +86,11 @@ class obsspec():
         '''
         self.__attr_check(primary=True)
 
-        if len(self.mjds) == 0:
+        if len(self.obsdates) == 0:
             return None
 
         intensity = 0
-        N = len(self.mjds)
+        N = len(self.obsdates)
         
         for spec in self.specs:
             intensity += spec
@@ -135,13 +140,13 @@ class obsspec():
         return specs_new
         
     
-    def show_spec(self, mjd_idx=None, vpos=None, xunit="velo", overlay=False, tight=False, title=None):
+    def show_spec(self, obs_idx=None, vpos=None, xunit="velo", overlay=False, tight=False, title=None):
         '''
-        plot the spectral line(s) for selected mjd(s).
+        plot the spectral line(s) for selected obsdate(s).
 
-        input: mjd_idx=None, xunit="velo", overlay=False
-        mjd_idx: selected mjd to plot.
-                 example: mjd_idx = None, 1, or [1,2,3]
+        input: obs_idx=None, xunit="velo", overlay=False
+        obs_idx: selected obsdate to plot.
+                 example: obs_idx = None, 1, or [1,2,3]
         xunit: type of the x-axis of the spectral. velocity or frequency
               example: xunit = "velo" or "freq"
         overlay: boolean
@@ -152,22 +157,22 @@ class obsspec():
         self.__attr_check(primary=True)
 
         #check the vaildation of the inputs.
-        if mjd_idx is None:
-            mjd_idx = range(len(self.mjds))
-        elif type(mjd_idx) == int:
-            mjd_idx = [mjd_idx]
-        elif type(mjd_idx) != list or type(mjd_idx) != type(np.array([])):
-            functions.prt_info("Invalid type for mjd_idx, must be list or np.array")
+        if obs_idx is None:
+            obs_idx = range(len(self.obsdates))
+        elif type(obs_idx) == int:
+            obs_idx = [obs_idx]
+        elif type(obs_idx) != list or type(obs_idx) != type(np.array([])):
+            functions.prt_info("Invalid type for obs_idx, must be list or np.array")
             return
-        elif len(mjd_idx) == 0:
-            mjd_idx = range(len(self.mjds))
+        elif len(obs_idx) == 0:
+            obs_idx = range(len(self.obsdates))
         
-        for idx in mjd_idx:
+        for idx in obs_idx:
             if type(idx) != int:
                 functions.prt_info("Invalid type for index, must be int.")
                 return
-            if idx < 0 or idx >= len(self.mjds):
-                functions.prt_info("Input index for mjds out of range. It should be less than %d", len(self.mjds))
+            if idx < 0 or idx >= len(self.obsdates):
+                functions.prt_info("Input index for obsdates out of range. It should be less than %d", len(self.obsdates))
                 return
 
         if xunit == "freq":
@@ -182,7 +187,7 @@ class obsspec():
         #plot grid figures
         x_arr_list, y_arr_list, label_list = [], [], []
 
-        for idx in mjd_idx:
+        for idx in obs_idx:
             spec = self.specs[idx]
             x_arr_list.append(spec[:, sel_col])
             y_arr_list.append(spec[:, 2])
@@ -477,51 +482,26 @@ class molspec():
     '''
     molspec class to store all of the data.
 
-    attributes: obssetup, name="", beam="M01", restfreqs=[], mjds=[], obsdates=[], lines=None, loadpath=None.
-    obssetup: dict. some user defined key-value pairs.
-    name: string. molecular name.
-    beam: string. FAST beam.
+    comet: string. comet name
+    mol: string. molecular name.
     restfreqs: list of rest frequencies.
-    mjds: list of mjd.
     obsdates: list of observational date.
     lines: lines class
     loadpath: string. read from files if provided.
-              filename example: loadpath/obsdate/M01_Ta_1419_1421_ave.npy
     
     methods:
     load_from_file()
     '''
-    def __init__(self, obssetup, name="", beam="M01", restfreqs=[], mjds=[], obsdates=[], lines=None, loadpath=None):
-        self.obssetup = obssetup
-        self.name = name
-        self.beam = beam
+    def __init__(self, comet="", mol="", restfreqs=[], obsdates=[], lines=None, loadpath=None):
+        self.comet = comet
+        self.molecule = mol
         self.restfreqs = restfreqs
-        self.mjds = mjds
         self.obsdates = obsdates
         self.lines = lines
         self.loadpath = loadpath
         
-        self.__init_check()
-        
         if self.loadpath != None:
             self.load_from_file()
-
-    def __init_check(self):
-        if type(self.obssetup) != dict:
-            functions.prt_info("First argument should be type of dict.")
-            return
-        if "target_ra" not in self.obssetup:
-            functions.prt_info("key: target_ra not in the dict.")
-            return
-        if "target_dec" not in self.obssetup:
-            functions.prt_info("key: target_dec not in the dict.")
-            return
-        if "bandw" not in self.obssetup:
-            functions.prt_info("key: bandw not in the dict.")
-            return
-        if "nchan" not in self.obssetup:
-            functions.prt_info("key: nchan not in the dict.")
-            return
 
     def load_from_file(self):
         if self.loadpath is None:
@@ -538,65 +518,59 @@ class molspec():
         #init self.lines.speclist
         nlines = len(self.restfreqs)
         for iline,eachline in enumerate(self.restfreqs):
-            functions.prt_info("Processing for transition %f MHz for %s (%d/%d)", eachline, self.name, iline+1, nlines)
+            functions.prt_info("Processing for transition %f MHz for %s (%d/%d)", eachline, self.molecule, iline+1, nlines)
             
             #init obsspec class
-            spec = obsspec(obsdates=[], mjds=[], specs=[])
-            spec.obsdates = self.obsdates
-            spec.mjds = self.mjds
+            spec = obsspec(obsdates=[], specs=[])
+            # spec.obsdates = self.obsdates
             
             #init obsspec.specs. for each mjd spectral
-            for eachmjd,eachobs in zip(self.mjds, self.obsdates):
+            bands = ["UWB1", "UWB2", "UWB3", "UWB4"]
+            for eachobs in self.obsdates:
                 #choose the spectral data
-                for fi in sorted(os.listdir(self.loadpath+"/"+eachobs)):
-                    if (self.beam not in fi) or ("Ta" not in fi) or ("ave.npy" not in fi):
+                lower_freq, upper_freq = 0, 0
+                ta_onoff_file = ""
+                receiver = ""
+                for band in bands:
+                    in_path = f"{self.loadpath}/{self.comet}/{eachobs}/{band}/product"
+                    if not os.path.exists(in_path):
                         continue
-                    
-                    freqmin, freqmax = fi.split("_")[2:4]
-                    freqmin, freqmax = int(freqmin), int(freqmax)
+                    for file in sorted(glob.glob(f"{in_path}/Ta_*_doppler.npy")):
+                        filename = file.split("/")[-1]
+                        split_arr = filename.split("_")
+                        lower_freq, upper_freq = int(split_arr[1]), int(split_arr[2])
+                        if lower_freq <= eachline <= upper_freq:
+                            # functions.prt_info("Initialization from data file %s...", eachobs+"/"+file)
+                            ta_onoff_file = file
+                            receiver = band
+                            break
+                    if ta_onoff_file != "":
+                        break
+                if ta_onoff_file == "":
+                    continue
+                spec.obsdates.append(eachobs)
 
-                    if eachline < freqmin or eachline > freqmax:
-                        continue
-                    
-                    functions.prt_info("Initialization from data file %s...", eachobs+"/"+fi)
-                    
-                    #original frequency array
-                    freq_arr = functions.get_freq_range(xmin=freqmin, xmax=freqmax)
+                width = 1 # MHz
+                freq_limit = [np.floor(eachline - width), np.floor(eachline + width)]
+                
+                _, freq_array = functions.get_freq_mask_range(receiver, lower_freq, upper_freq)
+                freq_mask = (freq_array >= freq_limit[0]) & (freq_array <= freq_limit[1])
 
-                    #velocity correction
-                    #vlsr = pipeline.vlsr_corr(self.obssetup["target_ra"], self.obssetup["target_dec"], eachmjd)
+                new_spec_array = copy.deepcopy(freq_array[freq_mask]) * u.MHz
+                new_spec_coord = SpectralCoord(new_spec_array,
+                                            doppler_convention="radio",
+                                            doppler_rest=eachline*u.MHz)
+                
 
-                    #doppler correction
-                    #doppler = pipeline.rest_corr(vlsr, eachline)
-                    
-                    #print(eachline+doppler)
-
-                    #correction of the original frequency array
-                    #freq_arr = pipeline.freq_shift(freq_arr, doppler, resolution=self.obssetup["bandw"]/self.obssetup["nchan"])
-
-                    #convertion from frequency domain to velocity domain
-                    velo_arr = pipeline.freq_to_velo(freq_arr, eachline)
-
-                    #shifting Ta
-                    ta_arr = np.load(self.loadpath+"/"+eachobs+"/"+fi)
-                    #ta_arr = pipeline.ta_shift(ta_arr, doppler, resolution=self.obssetup["bandw"]/self.obssetup["nchan"])
-                    
-                    #remove baseline
-                    window = 0.3    #MHz
-                    baseline = pipeline.medfilter(ta_arr, window)
-                    
-                    #xx = [freq_arr, freq_arr]
-                    #yy = [ta_arr, baseline]
-                    #ll = ["ta", "baseline"]
-                    #plotting.plot_spec(xx, yy, ll, xunit="freq", overlay=True, title=eachobs)
-                    #plotting.plot_spec([freq_arr], [ta_arr-baseline], ["baseline removed"], xunit="freq")
-                    
-                    ta_arr = ta_arr - baseline
-                    
-                    #generate the 2d array of the spectral data
-                    xyz = np.column_stack((freq_arr, velo_arr, ta_arr))
-                    
-                    spec.specs.append(xyz)
+                ta = np.load(ta_onoff_file)[freq_mask]
+                sp = Spectrum1D(flux=ta * u.K,
+                                spectral_axis=new_spec_coord,
+                                velocity_convention="radio")
+                
+                #generate the 2d array of the spectral data
+                xyz = np.column_stack((sp.frequency.value, sp.frequency.to(u.km/u.s).value, sp.flux.value))
+                
+                spec.specs.append(xyz)
                 #end for each file
             #end for each mjd
             spec.intensity = spec.ave_spec()

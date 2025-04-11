@@ -41,12 +41,12 @@ if select_date not in obs_date_list:
     exit()
 
 
-#receiver, fixed_freq_limit = utils.get_band_range(mol_line.value)
-receiver = "UWB2"
-fixed_freq_limit = [1663, 1669]
-
-based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_only_for_OH/"
+based_data_path = "/media/longfei/c57a45a4-0626-4f7a-bdbb-f0d65a153c9d/N2024_8_selected/"
 comet_name = "A3"
+
+receiver, fixed_freq_limit = utils.get_band_range(mol_line.value, based_data_path, comet_name)
+# receiver = "UWB2"
+# fixed_freq_limit = [1663, 1669]
 
 # prepare for the frequency axis
 _, freq_array = functions.get_freq_mask_range(receiver, fixed_freq_limit[0], fixed_freq_limit[1])
@@ -65,6 +65,9 @@ ta_onoff_files = f"{based_data_path}" + "{}/{}/{}/product/Ta_{}_{}_doppler.npy"
 ta_on, ta_off, ta_onoff = {}, {}, {}
 ta_onoff_ave = None
 for obs_date in obs_date_list:
+    if not functions.is_dir_exists(ta_on_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1])):
+        continue
+    
     ta_on[obs_date] = np.load(ta_on_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
     ta_off[obs_date] = np.load(ta_off_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))
     ta_onoff[obs_date] = np.load(ta_onoff_files.format(comet_name, obs_date, receiver, fixed_freq_limit[0], fixed_freq_limit[1]))

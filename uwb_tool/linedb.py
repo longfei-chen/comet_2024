@@ -67,7 +67,7 @@ def from_cdms(db_file, Aij=None, Elow=None):
 
     Return
     ======
-    return: dict{mol:freq}
+    return: dict{mol:[freq]}
     """
     catalog = {}
 
@@ -98,7 +98,10 @@ def from_cdms(db_file, Aij=None, Elow=None):
             if (Elow is not None) and (Elow < float(line[5])):
                 continue
 
-            catalog[mol] = [rest_freq]
+            if mol not in catalog:
+                catalog[mol] = [rest_freq]
+            else:
+                catalog[mol].append(rest_freq)
 
     return catalog
 
@@ -113,7 +116,7 @@ def from_jpl(db_file):
 
     Return
     ======
-    return: dict{mol:freq}
+    return: dict{mol:[freq]}
     """
     catalog = {}
 
@@ -137,7 +140,10 @@ def from_jpl(db_file):
             
             rest_freq = float(line[0][0:9])
 
-            catalog[mol] = [rest_freq]
+            if mol not in catalog:
+                catalog[mol] = [rest_freq]
+            else:
+                catalog[mol].append(rest_freq)
 
     return catalog
 
@@ -154,7 +160,7 @@ def from_splatalogue(db_file, Aij=None, Eup=None):
 
     Return
     ======
-    return: dict{mol:freq}
+    return: dict{mol:[freq]}
     """
     catalog = {}
 
@@ -174,7 +180,10 @@ def from_splatalogue(db_file, Aij=None, Eup=None):
             if (Eup is not None) and (Eup < float(line[10])):
                 continue
 
-            catalog[mol] = [rest_freq]
+            if mol not in catalog:
+                catalog[mol] = [rest_freq]
+            else:
+                catalog[mol].append(rest_freq)
 
     return catalog
 
