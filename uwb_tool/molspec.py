@@ -9,12 +9,8 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
-from astropy.modeling import models
 from astropy.coordinates import SpectralCoord
 from specutils import Spectrum1D
-from specutils.manipulation import box_smooth
-from specutils.fitting.continuum import fit_continuum
-from specutils.fitting import fit_lines
 
 from uwb_tool import functions
 from uwb_tool import plotting

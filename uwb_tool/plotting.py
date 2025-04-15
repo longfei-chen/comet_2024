@@ -256,8 +256,11 @@ def plot_spec(x_arr_list, y_arr_list, label_list, vpos=None, xunit="velo", overl
             x = x_arr_list[cur_ax]
             y = y_arr_list[cur_ax]
 
-            max_y_value = np.max(y)
-            min_y_value = np.min(y)
+            max_x_value = np.nanmax(x)
+            min_x_value = np.nanmin(x)
+            
+            max_y_value = np.nanmax(y)
+            min_y_value = np.nanmin(y)
             max_abs_value = max(abs(max_y_value), abs(min_y_value))
             
             if not overlay:
@@ -269,10 +272,11 @@ def plot_spec(x_arr_list, y_arr_list, label_list, vpos=None, xunit="velo", overl
                 if type(vpos) == list:
                     ax.axvline(vpos[cur_ax], ls="--", color="red")
                 
-                if xunit == "freq":
-                    lr_width = 0.2
-                if xunit == "velo":
-                    lr_width = 30
+                # if xunit == "freq":
+                #     lr_width = 0.2
+                # if xunit == "velo":
+                #     lr_width = 30
+                lr_width = (max_x_value - min_x_value) / 2
                 
                 ud_width = max_abs_value * 2.0
 
@@ -304,7 +308,7 @@ def plot_spec(x_arr_list, y_arr_list, label_list, vpos=None, xunit="velo", overl
                 if xunit == "velo":
                     ax.set_xlabel(r"V_${lsr}$ (km/s)", fontsize=13)
                 if xunit == "freq":
-                    ax.set_xlabel("Frequency (MHz)", fontsize=13)
+                    ax.set_xlabel("Frequency (GHz)", fontsize=13)
                 ax.set_ylabel("Ta (K)", fontsize=13)
                 continue
                 
